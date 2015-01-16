@@ -1,0 +1,43 @@
+////////////////////////////////////////////////////////////////////////////////
+// DEFINE INPUT AND OUTPUT DEVICES
+////////////////////////////////////////////////////////////////////////////////
+#ifdef DEFINE_DEVICE
+
+////////////////////////////////////////////////////////////////////////////////
+// Define input devices using the following macro:
+//
+// ADD_INPUT_DEVICE(id, path);
+//
+// Where 'id' is an arbitrary number assigned to the device.
+// And 'path' is the path to the device, usually somewhere in /dev/input/...
+//
+// Example:
+//
+// ADD_INPUT_DEVICE( 0, /dev/input/event1);
+// ADD_INPUT_DEVICE( 7, /dev/input/event7);
+// ADD_INPUT_DEVICE(42, /dev/input/by-id/usb-The_Ultimate_Answer);
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Define output devices and their type using the following macro:
+//
+// ADD_OUTPUT_DEVICE(id, type [ | type ... ]);
+//
+// Where 'id' is an arbitrary number assigned to the device.
+// And 'type' is one of the following: KEY, REL, ABS
+//
+// Example:
+//
+// ADD_OUTPUT_DEVICE( 0, KEY);
+// ADD_OUTPUT_DEVICE(69, KEY | REL);
+
+
+
+#endif
+
+////////////////////////////////////////////////////////////////////////////////
+// DEFINE MAPPINGS
+////////////////////////////////////////////////////////////////////////////////
+#ifdef DEFINE_MAPPING
+#endif
