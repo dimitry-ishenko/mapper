@@ -113,10 +113,36 @@ int main(int , char* [])
 {
     using namespace app;
 
-    // define input and output devices
-    #define DEFINE_DEVICE
-    #include "map.h"
-    #undef DEFINE_DEVICE
+    try
+    {
+        // define input and output devices
+        #define DEFINE_DEVICE
+        #include "map.h"
+        #undef DEFINE_DEVICE
 
-    return 0;
+        for(auto& ri: inputs)
+        {
+            input_device& input = ri.second;
+            input.dev = storage::file(input.path, storage::open::read);
+        }
+
+        for(auto& ri: outputs)
+        {
+            output_device& output = ri.second;
+            output.dev = storage::file(uinput_path, storage::open::write, storage::open_opt::non_block);
+
+            output.dev.control(UI_SET_EVBIT, EV_SYN);
+
+            for(auto& type: ev_type)
+                if(output.type && type.first)
+            output.dev.control(UI_SET_EVBIT, type.second);
+        }
+
+        return 0;
+    }
+    catch(std::exception& e)
+    {
+        std::cerr << e.what() << std::endl;
+        return 1;
+    }
 }
