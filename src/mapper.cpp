@@ -84,7 +84,7 @@ output_devices outputs;
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-void ADD_INPUT_DEVICE(int id, const std::string& path)
+void add_input_device(int id, const std::string& path)
 {
     if(inputs.count(id)) throw std::invalid_argument("Duplicate input device ID " + std::to_string(id));
 
@@ -93,7 +93,7 @@ void ADD_INPUT_DEVICE(int id, const std::string& path)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void ADD_OUTPUT_DEVICE(int id, app::type type)
+void add_output_device(int id, app::type type)
 {
     if(outputs.count(id)) throw std::invalid_argument("Duplicate output device ID " + std::to_string(id));
 
@@ -105,8 +105,14 @@ void ADD_OUTPUT_DEVICE(int id, app::type type)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+#define ADD_INPUT_DEVICE(id, path) add_input_device(id, #path)
+#define ADD_OUTPUT_DEVICE(id, type) add_output_device(id, type)
+
+////////////////////////////////////////////////////////////////////////////////
 int main(int , char* [])
 {
+    using namespace app;
+
     // define input and output devices
     #define DEFINE_DEVICE
     #include "map.h"
