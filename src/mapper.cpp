@@ -3,6 +3,8 @@
 #include "errno_error.hpp"
 #include "storage/file.hpp"
 
+#include <cstdio>
+#include <cstring>
 #include <iostream>
 #include <map>
 #include <stdexcept>
@@ -120,12 +122,14 @@ int main(int , char* [])
         #include "map.h"
         #undef DEFINE_DEVICE
 
+        // open input devices
         for(auto& ri: inputs)
         {
             input_device& input = ri.second;
             input.dev = storage::file(input.path, storage::open::read);
         }
 
+        // open and initialize output devices
         for(auto& ri: outputs)
         {
             output_device& output = ri.second;
@@ -136,6 +140,18 @@ int main(int , char* [])
             for(auto& type: ev_type)
                 if(output.type && type.first)
             output.dev.control(UI_SET_EVBIT, type.second);
+
+            struct uinput_user_dev dev;
+            std::memset(&dev, 0, sizeof(dev));
+
+            std::snprintf(dev.name, sizeof(dev.name), "mapper-%d", output.id);
+            dev.id.bustype = BUS_USB;
+            dev.id.vendor = 0x42;
+            dev.id.product = 0x69;
+            dev.id.version = output.id;
+
+            output.dev.write(&dev, sizeof(dev));
+            output.dev.control(UI_DEV_CREATE);
         }
 
         return 0;
