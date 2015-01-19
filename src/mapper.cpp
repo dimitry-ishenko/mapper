@@ -2,16 +2,12 @@
 #include "enum.hpp"
 #include "errno_error.hpp"
 #include "storage/file.hpp"
+#include "uinput.hpp"
 
-#include <cstdio>
-#include <cstring>
 #include <iostream>
 #include <map>
 #include <stdexcept>
 #include <string>
-
-#include <linux/input.h>
-#include <linux/uinput.h>
 
 ////////////////////////////////////////////////////////////////////////////////
 #define VERSION_MAJOR 0
@@ -21,9 +17,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 namespace app
 {
-
-////////////////////////////////////////////////////////////////////////////////
-const std::string uinput_path = "/dev/uinput";
 
 ////////////////////////////////////////////////////////////////////////////////
 struct input_device
@@ -44,27 +37,11 @@ struct input_device
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-enum type
-{
-    KEY   = 0x01,
-    REL   = 0x02,
-    ABS   = 0x04,
-};
-DECLARE_OPERATOR(type)
-
-const std::map<type, int> ev_type =
-{
-    { KEY , EV_KEY },
-    { REL , EV_REL },
-    { ABS , EV_ABS },
-};
-
-////////////////////////////////////////////////////////////////////////////////
 struct output_device
 {
     int id;
     app::type type;
-    storage::file dev;
+    app::uinput dev;
 
     output_device(int _id, app::type _type):
         id(_id), type(_type)
@@ -133,25 +110,7 @@ int main(int , char* [])
         for(auto& ri: outputs)
         {
             output_device& output = ri.second;
-            output.dev = storage::file(uinput_path, storage::open::write, storage::open_opt::non_block);
-
-            output.dev.control(UI_SET_EVBIT, EV_SYN);
-
-            for(auto& type: ev_type)
-                if(output.type && type.first)
-            output.dev.control(UI_SET_EVBIT, type.second);
-
-            struct uinput_user_dev dev;
-            std::memset(&dev, 0, sizeof(dev));
-
-            std::snprintf(dev.name, sizeof(dev.name), "mapper-%d", output.id);
-            dev.id.bustype = BUS_USB;
-            dev.id.vendor = 0x42;
-            dev.id.product = 0x69;
-            dev.id.version = output.id;
-
-            output.dev.write(&dev, sizeof(dev));
-            output.dev.control(UI_DEV_CREATE);
+            output.dev = app::uinput("mapper-" + std::to_string(output.id), output.type);
         }
 
         return 0;
