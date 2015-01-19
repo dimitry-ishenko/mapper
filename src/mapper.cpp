@@ -25,15 +25,17 @@ struct input_device
 {
     int id;
     std::string path;
+    bool exclusive;
     storage::file dev;
 
-    input_device(int _id, const std::string& _path):
-        id(_id), path(_path)
+    input_device(int _id, const std::string& _path, bool _exclusive):
+        id(_id), path(_path), exclusive(_exclusive)
     { }
 
     input_device(input_device&& x):
         id(std::move(x.id)),
         path(std::move(x.path)),
+        exclusive(std::move(x.exclusive)),
         dev(std::move(x.dev))
     { }
 };
@@ -43,15 +45,17 @@ struct output_device
 {
     int id;
     app::type type;
+    bool joystick;
     app::uinput dev;
 
-    output_device(int _id, app::type _type):
-        id(_id), type(_type)
+    output_device(int _id, app::type _type, bool _joystick):
+        id(_id), type(_type), joystick(_joystick)
     { }
 
     output_device(output_device&& x):
         id(std::move(x.id)),
         type(x.type),
+        joystick(x.joystick),
         dev(std::move(x.dev))
     { }
 };
@@ -65,21 +69,21 @@ output_devices outputs;
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-void add_input_device(int id, const std::string& path)
+void add_input_device(int id, const std::string& path, bool exclusive = false)
 {
     if(inputs.count(id)) throw std::invalid_argument("Duplicate input device " + std::to_string(id));
 
     std::cout << "Adding input device " << id << " - " << path << _n;
-    inputs.emplace(id, input_device(id, path));
+    inputs.emplace(id, input_device(id, path, exclusive));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void add_output_device(int id, app::type type)
+void add_output_device(int id, app::type type, bool joystick = false)
 {
     if(outputs.count(id)) throw std::invalid_argument("Duplicate output device " + std::to_string(id));
 
     std::cout << "Adding output device " << id << _n;
-    outputs.emplace(id, output_device(id, type));
+    outputs.emplace(id, output_device(id, type, joystick));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -87,7 +91,10 @@ void add_output_device(int id, app::type type)
 
 ////////////////////////////////////////////////////////////////////////////////
 #define ADD_INPUT_DEVICE(id, path) add_input_device(id, #path)
+#define ADD_EXCLUSIVE_INPUT_DEVICE(id, path) add_input_device(id, #path, true)
+
 #define ADD_OUTPUT_DEVICE(id, type) add_output_device(id, type)
+#define ADD_OUTPUT_JOYSTICK(id, type) add_output_device(id, type, true)
 
 ////////////////////////////////////////////////////////////////////////////////
 int main(int , char* [])
