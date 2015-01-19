@@ -67,16 +67,16 @@ output_devices outputs;
 ////////////////////////////////////////////////////////////////////////////////
 void add_input_device(int id, const std::string& path)
 {
-    if(inputs.count(id)) throw std::invalid_argument("Duplicate input device ID " + std::to_string(id));
+    if(inputs.count(id)) throw std::invalid_argument("Duplicate input device " + std::to_string(id));
 
-    std::cout << "Adding input device " << path << _n;
+    std::cout << "Adding input device " << id << " - " << path << _n;
     inputs.emplace(id, input_device(id, path));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void add_output_device(int id, app::type type)
 {
-    if(outputs.count(id)) throw std::invalid_argument("Duplicate output device ID " + std::to_string(id));
+    if(outputs.count(id)) throw std::invalid_argument("Duplicate output device " + std::to_string(id));
 
     std::cout << "Adding output device " << id << _n;
     outputs.emplace(id, output_device(id, type));
@@ -105,6 +105,8 @@ int main(int , char* [])
         for(auto& ri: inputs)
         {
             input_device& input = ri.second;
+
+            std::cout << "Opening input device " << input.id << _n;
             input.dev = storage::file(input.path, storage::open::read);
         }
 
@@ -112,6 +114,8 @@ int main(int , char* [])
         for(auto& ri: outputs)
         {
             output_device& output = ri.second;
+
+            std::cout << "Opening output device " << output.id << _n;
             output.dev = app::uinput("mapper-" + std::to_string(output.id), output.type);
         }
 
