@@ -14,6 +14,8 @@
 #define VERSION_MINOR 0
 #define VERSION_MICRO 0
 
+constexpr char _n = '\n';
+
 ////////////////////////////////////////////////////////////////////////////////
 namespace app
 {
@@ -67,7 +69,7 @@ void add_input_device(int id, const std::string& path)
 {
     if(inputs.count(id)) throw std::invalid_argument("Duplicate input device ID " + std::to_string(id));
 
-    std::cout << "Adding input device " << path << std::endl;
+    std::cout << "Adding input device " << path << _n;
     inputs.emplace(id, input_device(id, path));
 }
 
@@ -76,7 +78,7 @@ void add_output_device(int id, app::type type)
 {
     if(outputs.count(id)) throw std::invalid_argument("Duplicate output device ID " + std::to_string(id));
 
-    std::cout << "Adding output device " << id << std::endl;
+    std::cout << "Adding output device " << id << _n;
     outputs.emplace(id, output_device(id, type));
 }
 
@@ -117,7 +119,7 @@ int main(int , char* [])
     }
     catch(std::exception& e)
     {
-        std::cerr << e.what() << std::endl;
+        std::cerr << e.what() << _n;
         return 1;
     }
 }
