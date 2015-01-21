@@ -22,17 +22,15 @@ template<typename T>
 inline app::codes operator|(app::codes&& x, T&& y)
 {
     app::codes c(std::move(x));
-    x.insert(y.begin(), y.end());
-
+    c.insert(y.begin(), y.end());
     return c;
 }
 
 template<typename T>
 inline app::codes operator|(const app::codes& x, T&& y)
 {
-    app::codes c(std::forward<app::codes>(y));
-    y.insert(x.begin(), x.end());
-
+    app::codes c(std::forward<T>(y));
+    c.insert(x.begin(), x.end());
     return c;
 }
 
