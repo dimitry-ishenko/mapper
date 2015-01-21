@@ -6,9 +6,9 @@
 #include "uinput.hpp"
 
 #include <iostream>
-#include <map>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 #include <linux/input.h>
 
@@ -21,8 +21,8 @@ using namespace app;
 
 constexpr char _n = '\n';
 
-typedef std::map<int, input> input_devices;
-typedef std::map<int, uinput> output_devices;
+typedef std::vector<input> input_devices;
+typedef std::vector<uinput> output_devices;
 
 ////////////////////////////////////////////////////////////////////////////////
 input_devices inputs;
@@ -32,19 +32,23 @@ output_devices outputs;
 ////////////////////////////////////////////////////////////////////////////////
 void add_input_device(int number, const std::string& path, bool exclusive = false)
 {
-    if(inputs.count(number)) throw std::invalid_argument("Duplicate input device " + std::to_string(number));
+    for(const app::input& input: inputs)
+        if(input.number() == number)
+    throw std::invalid_argument("Duplicate input device " + std::to_string(number));
 
     std::cout << "Adding input device " << number << " - " << path << _n;
-    inputs.emplace(number, input(number, path, exclusive));
+    inputs.emplace_back(number, path, exclusive);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void add_output_device(int number, std::string&& name, const app::events& events)
 {
-    if(outputs.count(number)) throw std::invalid_argument("Duplicate output device " + std::to_string(number));
+    for(const app::uinput& output: outputs)
+        if(output.number() == number)
+    throw std::invalid_argument("Duplicate output device " + std::to_string(number));
 
     std::cout << "Adding output device " << number << _n;
-    outputs.emplace(number, uinput(number, std::move(name), events));
+    outputs.emplace_back(number, std::move(name), events);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -86,19 +90,15 @@ int main(int , char* [])
         #undef DEFINE_DEVICE
 
         // open input devices
-        for(auto& ri: inputs)
+        for(app::input& input: inputs)
         {
-            app::input& input = ri.second;
-
             std::cout << "Opening input device " << input.number() << _n;
             input.open();
         }
 
         // open and initialize output devices
-        for(auto& ri: outputs)
+        for(app::uinput& output: outputs)
         {
-            app::uinput& output = ri.second;
-
             std::cout << "Opening output device " << output.number() << _n;
             output.open();
         }
