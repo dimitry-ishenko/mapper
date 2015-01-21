@@ -1,6 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 #include "enum.hpp"
 #include "errno_error.hpp"
+#include "input.hpp"
 #include "storage/file.hpp"
 #include "uinput.hpp"
 
@@ -9,6 +10,10 @@
 #include <stdexcept>
 #include <string>
 
+#include <linux/input.h>
+
+using namespace app;
+
 ////////////////////////////////////////////////////////////////////////////////
 #define VERSION_MAJOR 0
 #define VERSION_MINOR 0
@@ -16,52 +21,8 @@
 
 constexpr char _n = '\n';
 
-////////////////////////////////////////////////////////////////////////////////
-namespace app
-{
-
-////////////////////////////////////////////////////////////////////////////////
-struct input_device
-{
-    int id;
-    std::string path;
-    bool exclusive;
-    storage::file dev;
-
-    input_device(int _id, const std::string& _path, bool _exclusive):
-        id(_id), path(_path), exclusive(_exclusive)
-    { }
-
-    input_device(input_device&& x):
-        id(std::move(x.id)),
-        path(std::move(x.path)),
-        exclusive(std::move(x.exclusive)),
-        dev(std::move(x.dev))
-    { }
-};
-
-////////////////////////////////////////////////////////////////////////////////
-struct output_device
-{
-    int id;
-    app::type type;
-    bool joystick;
-    app::uinput dev;
-
-    output_device(int _id, app::type _type, bool _joystick):
-        id(_id), type(_type), joystick(_joystick)
-    { }
-
-    output_device(output_device&& x):
-        id(std::move(x.id)),
-        type(x.type),
-        joystick(x.joystick),
-        dev(std::move(x.dev))
-    { }
-};
-
-typedef std::map<int, input_device> input_devices;
-typedef std::map<int, output_device> output_devices;
+typedef std::map<int, input> input_devices;
+typedef std::map<int, uinput> output_devices;
 
 ////////////////////////////////////////////////////////////////////////////////
 input_devices inputs;
@@ -69,38 +30,54 @@ output_devices outputs;
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-void add_input_device(int id, const std::string& path, bool exclusive = false)
+void add_input_device(int number, const std::string& path, bool exclusive = false)
 {
-    if(inputs.count(id)) throw std::invalid_argument("Duplicate input device " + std::to_string(id));
+    if(inputs.count(number)) throw std::invalid_argument("Duplicate input device " + std::to_string(number));
 
-    std::cout << "Adding input device " << id << " - " << path << _n;
-    inputs.emplace(id, input_device(id, path, exclusive));
+    std::cout << "Adding input device " << number << " - " << path << _n;
+    inputs.emplace(number, input(number, path, exclusive));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void add_output_device(int id, app::type type, bool joystick = false)
+void add_output_device(int number, std::string&& name, const app::events& events)
 {
-    if(outputs.count(id)) throw std::invalid_argument("Duplicate output device " + std::to_string(id));
+    if(outputs.count(number)) throw std::invalid_argument("Duplicate output device " + std::to_string(number));
 
-    std::cout << "Adding output device " << id << _n;
-    outputs.emplace(id, output_device(id, type, joystick));
+    std::cout << "Adding output device " << number << _n;
+    outputs.emplace(number, uinput(number, std::move(name), events));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-}
+app::events KEYBOARD
+{
+    { EV_KEY, range(KEY_ESC, KEY_UNKNOWN) }
+};
 
 ////////////////////////////////////////////////////////////////////////////////
-#define ADD_INPUT_DEVICE(id, path) add_input_device(id, #path)
-#define ADD_EXCLUSIVE_INPUT_DEVICE(id, path) add_input_device(id, #path, true)
+app::events MOUSE
+{
+    { EV_KEY, range(BTN_MISC, BTN_TASK) },
+    { EV_REL, range(REL_X, REL_MAX) },
+};
 
-#define ADD_OUTPUT_DEVICE(id, type) add_output_device(id, type)
-#define ADD_OUTPUT_JOYSTICK(id, type) add_output_device(id, type, true)
+////////////////////////////////////////////////////////////////////////////////
+app::events JOYSTICK
+{
+    { EV_KEY, range(BTN_JOYSTICK, BTN_DEAD) },
+    { EV_ABS, range(ABS_X, ABS_MAX) },
+};
+
+////////////////////////////////////////////////////////////////////////////////
+#define ADD_INPUT_DEVICE(number, path) add_input_device(number, #path)
+#define ADD_EXCLUSIVE_DEVICE(number, path) add_input_device(number, #path, true)
+
+#define ADD_OUTPUT_KEYBOARD(number) add_output_device(number, "event", KEYBOARD)
+#define ADD_OUTPUT_MOUSE(number)    add_output_device(number, "mouse", MOUSE)
+#define ADD_OUTPUT_JOYSTICK(number) add_output_device(number, "js", JOYSTICK)
 
 ////////////////////////////////////////////////////////////////////////////////
 int main(int , char* [])
 {
-    using namespace app;
-
     try
     {
         // define input and output devices
@@ -111,19 +88,19 @@ int main(int , char* [])
         // open input devices
         for(auto& ri: inputs)
         {
-            input_device& input = ri.second;
+            app::input& input = ri.second;
 
-            std::cout << "Opening input device " << input.id << _n;
-            input.dev = storage::file(input.path, storage::open::read);
+            std::cout << "Opening input device " << input.number() << _n;
+            input.open();
         }
 
         // open and initialize output devices
         for(auto& ri: outputs)
         {
-            output_device& output = ri.second;
+            app::uinput& output = ri.second;
 
-            std::cout << "Opening output device " << output.id << _n;
-            output.dev = app::uinput("mapper-" + std::to_string(output.id), output.type);
+            std::cout << "Opening output device " << output.number() << _n;
+            output.open();
         }
 
         return 0;
