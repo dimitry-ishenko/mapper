@@ -90,18 +90,22 @@ int main(int , char* [])
         #undef DEFINE_DEVICE
 
         // open input devices
+        std::cout << "Opening input devices:";
         for(app::input& input: inputs)
         {
-            std::cout << "Opening input device " << input.number() << _n;
+            std::cout << ' ' << input.number();
             input.open();
         }
+        std::cout << _n;
 
         // open and initialize output devices
+        std::cout << "Opening output devices:";
         for(app::uinput& output: outputs)
         {
-            std::cout << "Opening output device " << output.number() << _n;
+            std::cout << ' ' << output.number();
             output.open();
         }
+        std::cout << _n;
 
         return 0;
     }
