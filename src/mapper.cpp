@@ -6,11 +6,14 @@
 #include "uinput.hpp"
 
 #include <iostream>
+#include <memory>
 #include <stdexcept>
 #include <string>
 #include <vector>
 
 #include <linux/input.h>
+#include <poll.h>
+#include <signal.h>
 
 using namespace app;
 
@@ -52,20 +55,20 @@ void add_output_device(int number, std::string&& name, const app::events& events
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-app::events KEYBOARD
+const app::events KEYBOARD
 {
     { EV_KEY, range(KEY_ESC, KEY_UNKNOWN) }
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-app::events MOUSE
+const app::events MOUSE
 {
     { EV_KEY, range(BTN_MISC, BTN_TASK) },
     { EV_REL, range(REL_X, REL_MAX) },
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-app::events JOYSTICK
+const app::events JOYSTICK
 {
     { EV_KEY, range(BTN_JOYSTICK, BTN_DEAD) },
     { EV_ABS, range(ABS_X, ABS_MAX) },
@@ -89,12 +92,17 @@ int main(int , char* [])
         #include "map.h"
         #undef DEFINE_DEVICE
 
+        std::vector<pollfd> desc;
+        desc.reserve(inputs.size());
+
         // open input devices
         std::cout << "Opening input devices:";
         for(app::input& input: inputs)
         {
             std::cout << ' ' << input.number();
             input.open();
+
+            desc.emplace_back(pollfd { .fd = input.get_id(), .events = POLL_IN });
         }
         std::cout << _n;
 
@@ -106,6 +114,33 @@ int main(int , char* [])
             output.open();
         }
         std::cout << _n;
+
+        input_event event;
+
+        // main loop
+        for(;;)
+        {
+            int n = poll(&desc[0], desc.size(), -1);
+            if(n < 0)
+            {
+                if(errno == EINTR)
+                    break;
+                else throw errno_error();
+            }
+
+            for(int ri = 0; n > 0 && ri < desc.size(); ++ri)
+            {
+                if(desc[ri].revents & POLL_IN)
+                {
+                    auto read = inputs[ri].read(&event, sizeof(event));
+                        if(read != sizeof(event))
+                    throw std::runtime_error("Short read from device " + std::to_string(inputs[ri].number()));
+
+                    --n;
+                }
+            }
+            if(n > 0) throw std::runtime_error("Didn't process all incoming data");
+        }
 
         return 0;
     }
