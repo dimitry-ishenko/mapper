@@ -5,7 +5,9 @@
 #include "storage/file.hpp"
 #include "uinput.hpp"
 
+#include <cstring>
 #include <iostream>
+#include <map>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -25,7 +27,7 @@ using namespace app;
 constexpr char _n = '\n';
 
 typedef std::vector<input> input_devices;
-typedef std::vector<uinput> output_devices;
+typedef std::map<int, uinput> output_devices;
 
 ////////////////////////////////////////////////////////////////////////////////
 input_devices inputs;
@@ -46,14 +48,14 @@ void create_input(int number, const std::string& path, bool exclusive = false)
 ////////////////////////////////////////////////////////////////////////////////
 void create_output(int number, std::string&& name, const app::events& events)
 {
-    for(const app::uinput& output: outputs)
-        if(output.number() == number)
-    throw std::invalid_argument("Duplicate output device " + std::to_string(number));
+    if(outputs.count(number))
+        throw std::invalid_argument("Duplicate output device " + std::to_string(number));
 
     std::cout << "Adding output device " << number << _n;
-    outputs.emplace_back(number, std::move(name), events);
+    outputs.emplace(number, app::uinput(number, std::move(name), events));
 }
 
+////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 const app::events keyboard
 {
@@ -79,6 +81,17 @@ const app::events joystick
 #define exclusive_device(number, path) create_input(number, #path, true)
 
 #define output_device(number, type) create_output(number, #type, type)
+
+#define map(number_in, type_in, code_in, number_out, type_out, code_out, value_out)         \
+    if(input.number() == number_in && event_in.type == type_in && event_in.code == code_in) \
+    {                                                                                       \
+        app::uinput& output = outputs.at(number_out);                                       \
+        event_out.type = type_out;                                                          \
+        event_out.code = code_out;                                                          \
+        event_out.value = value_out;                                                        \
+                                                                                            \
+        output.write(&event_out, sizeof(event_out));                                        \
+    }                                                                                       \
 
 ////////////////////////////////////////////////////////////////////////////////
 int main(int , char* [])
@@ -106,14 +119,16 @@ int main(int , char* [])
 
         // open and initialize output devices
         std::cout << "Opening output devices:";
-        for(app::uinput& output: outputs)
+        for(auto& ri: outputs)
         {
+            app::uinput& output = ri.second;
+
             std::cout << ' ' << output.number();
             output.open();
         }
         std::cout << _n;
 
-        input_event event;
+        input_event event_in, event_out;
 
         // main loop
         for(;;)
@@ -130,9 +145,28 @@ int main(int , char* [])
             {
                 if(desc[ri].revents & POLL_IN)
                 {
-                    auto read = inputs[ri].read(&event, sizeof(event));
-                        if(read != sizeof(event))
-                    throw std::runtime_error("Short read from device " + std::to_string(inputs[ri].number()));
+                    app::input& input = inputs[ri];
+
+                    auto read = input.read(&event_in, sizeof(event_in));
+                        if(read != sizeof(event_in))
+                    throw std::runtime_error("Short read from device " + std::to_string(input.number()));
+
+                    std::memset(&event_out, 0, sizeof(event_out));
+
+                    #define DEFINE_MAPPING
+                    #include "map.h"
+                    #undef DEFINE_MAPPING
+
+                    // send sync events to all output devices
+                    if(event_in.type == EV_SYN)
+                    {
+                        std::memset(&event_in.time, 0, sizeof(event_in.time));
+                        for(auto& ri: outputs)
+                        {
+                            app::uinput& output = ri.second;
+                            output.write(&event_in, sizeof(event_in));
+                        }
+                    }
 
                     --n;
                 }
