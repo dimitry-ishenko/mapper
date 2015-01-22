@@ -6,10 +6,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Define input devices using the following macros:
 //
-// input_device(id, path);
-// exclusive_device(id, path);
+// input_device(number, path);
+// exclusive_device(number, path);
 //
-// Where 'id' is an arbitrary number assigned to the device.
+// Where 'number' is an unique arbitrary number you wish to assign to the device.
 // And 'path' is the path to the device, usually somewhere in /dev/input/...
 // Use 'exclusive_device' macro to open the device in exclusive mode.
 //
@@ -24,9 +24,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Define output devices using the following macros:
 //
-// output_device(id, type);
+// output_device(number, type);
 //
-// Where 'id' is an arbitrary number assigned to the device.
+// Where 'number' is an unique arbitrary number you wish to assign to the device.
 // And 'type' is one of the following: keyboard, mouse, joystick.
 //
 // Example:
@@ -43,4 +43,19 @@
 // DEFINE MAPPINGS
 ////////////////////////////////////////////////////////////////////////////////
 #ifdef DEFINE_MAPPING
+
+////////////////////////////////////////////////////////////////////////////////
+// Define mappings using the following macros:
+//
+//
+// map(number_in, type_in, code_in, number_out, type_out, code_out, value_out);
+//
+// when(condition,
+//     action;
+// );
+//
+// send_event(number, type, code, value);
+
+
+
 #endif
