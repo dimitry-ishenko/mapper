@@ -6,35 +6,34 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Define input devices using the following macros:
 //
-// ADD_INPUT_DEVICE(id, path);
-// ADD_EXCLUSIVE_DEVICE(id, path);
+// input_device(id, path);
+// exclusive_device(id, path);
 //
 // Where 'id' is an arbitrary number assigned to the device.
 // And 'path' is the path to the device, usually somewhere in /dev/input/...
-// Use ADD_EXCLUSIVE_DEVICE macro to open the device in exclusive mode.
+// Use 'exclusive_device' macro to open the device in exclusive mode.
 //
 // Example:
 //
-// ADD_INPUT_DEVICE(0, /dev/input/event1);
-// ADD_INPUT_DEVICE(7, /dev/input/event7);
-// ADD_EXCLUSIVE_DEVICE(42, /dev/input/by-id/usb-The_Ultimate_Answer);
+// input_device(0, /dev/input/event1);
+// input_device(7, /dev/input/event7);
+// exclusive_device(42, /dev/input/by-id/usb-The_Ultimate_Answer);
 
 
 
 ////////////////////////////////////////////////////////////////////////////////
 // Define output devices using the following macros:
 //
-// ADD_OUTPUT_KEYBOARD(id);
-// ADD_OUTPUT_MOUSE(id);
-// ADD_OUTPUT_JOYSTICK(id);
+// output_device(id, type);
 //
 // Where 'id' is an arbitrary number assigned to the device.
+// And 'type' is one of the following: keyboard, mouse, joystick.
 //
 // Example:
 //
-// ADD_OUTPUT_KEYBOARD(0);
-// ADD_OUTPUT_MOUSE(69);
-// ADD_OUTPUT_JOYSTICK(88);
+// output_device( 0, keyboard);
+// output_device(69, mouse);
+// output_device(88, joystick);
 
 
 

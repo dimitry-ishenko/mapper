@@ -33,7 +33,7 @@ output_devices outputs;
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-void add_input_device(int number, const std::string& path, bool exclusive = false)
+void create_input(int number, const std::string& path, bool exclusive = false)
 {
     for(const app::input& input: inputs)
         if(input.number() == number)
@@ -44,7 +44,7 @@ void add_input_device(int number, const std::string& path, bool exclusive = fals
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void add_output_device(int number, std::string&& name, const app::events& events)
+void create_output(int number, std::string&& name, const app::events& events)
 {
     for(const app::uinput& output: outputs)
         if(output.number() == number)
@@ -55,32 +55,30 @@ void add_output_device(int number, std::string&& name, const app::events& events
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-const app::events KEYBOARD
+const app::events keyboard
 {
     { EV_KEY, range(KEY_ESC, KEY_UNKNOWN) }
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-const app::events MOUSE
+const app::events mouse
 {
     { EV_KEY, range(BTN_MISC, BTN_TASK) },
     { EV_REL, range(REL_X, REL_MAX) },
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-const app::events JOYSTICK
+const app::events joystick
 {
     { EV_KEY, range(BTN_JOYSTICK, BTN_DEAD) },
     { EV_ABS, range(ABS_X, ABS_MAX) },
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-#define ADD_INPUT_DEVICE(number, path) add_input_device(number, #path)
-#define ADD_EXCLUSIVE_DEVICE(number, path) add_input_device(number, #path, true)
+#define input_device(number, path) create_input(number, #path)
+#define exclusive_device(number, path) create_input(number, #path, true)
 
-#define ADD_OUTPUT_KEYBOARD(number) add_output_device(number, "event", KEYBOARD)
-#define ADD_OUTPUT_MOUSE(number)    add_output_device(number, "mouse", MOUSE)
-#define ADD_OUTPUT_JOYSTICK(number) add_output_device(number, "js", JOYSTICK)
+#define output_device(number, type) create_output(number, #type, type)
 
 ////////////////////////////////////////////////////////////////////////////////
 int main(int , char* [])
