@@ -85,13 +85,25 @@ const app::events joystick
 #define map(number_in, type_in, code_in, number_out, type_out, code_out, value_out)         \
     if(input.number() == number_in && event_in.type == type_in && event_in.code == code_in) \
     {                                                                                       \
-        app::uinput& output = outputs.at(number_out);                                       \
         event_out.type = type_out;                                                          \
         event_out.code = code_out;                                                          \
         event_out.value = value_out;                                                        \
-                                                                                            \
-        output.write(&event_out, sizeof(event_out));                                        \
+        outputs.at(number_out).write(&event_out, sizeof(event_out));                        \
     }                                                                                       \
+
+#define when(condition, action) \
+    if(condition)               \
+    {                           \
+        action                  \
+    }                           \
+
+#define send_event(number, type, code, value)                       \
+    {                                                               \
+        event_out.type = type;                                      \
+        event_out.code = code;                                      \
+        event_out.value = value;                                    \
+        outputs.at(number).write(&event_out, sizeof(event_out));    \
+    }                                                               \
 
 ////////////////////////////////////////////////////////////////////////////////
 int main(int , char* [])
@@ -141,11 +153,11 @@ int main(int , char* [])
                 else throw errno_error();
             }
 
-            for(int ri = 0; n > 0 && ri < desc.size(); ++ri)
+            for(int number_in = 0; n > 0 && number_in < desc.size(); ++number_in)
             {
-                if(desc[ri].revents & POLL_IN)
+                if(desc[number_in].revents & POLL_IN)
                 {
-                    app::input& input = inputs[ri];
+                    app::input& input = inputs[number_in];
 
                     auto read = input.read(&event_in, sizeof(event_in));
                         if(read != sizeof(event_in))
