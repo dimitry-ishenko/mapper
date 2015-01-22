@@ -35,7 +35,7 @@ output_devices outputs;
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-void create_input(int number, const std::string& path, bool exclusive = false)
+void input_device_(int number, const std::string& path, bool exclusive = false)
 {
     for(const app::input& input: inputs)
         if(input.number() == number)
@@ -46,7 +46,7 @@ void create_input(int number, const std::string& path, bool exclusive = false)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void create_output(int number, std::string&& name, const app::events& events)
+void output_device_(int number, std::string&& name, const app::events& events)
 {
     if(outputs.count(number))
         throw std::invalid_argument("Duplicate output device " + std::to_string(number));
@@ -77,10 +77,10 @@ const app::events joystick
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-#define input_device(number, path) create_input(number, #path)
-#define exclusive_device(number, path) create_input(number, #path, true)
+#define input_device(number, path) input_device_(number, #path)
+#define exclusive_device(number, path) input_device_(number, #path, true)
 
-#define output_device(number, type) create_output(number, #type, type)
+#define output_device(number, type) output_device_(number, #type, type)
 
 #define map(number_in, type_in, code_in, number_out, type_out, code_out, value_out)         \
     if(input.number() == number_in && event_in.type == type_in && event_in.code == code_in) \
