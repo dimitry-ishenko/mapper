@@ -6,6 +6,7 @@
 #include "output.hpp"
 
 #include <cstring>
+#include <iomanip>
 #include <iostream>
 #include <map>
 #include <memory>
@@ -162,6 +163,13 @@ int main(int , char* [])
                     auto read = input.read(&event_in, sizeof(event_in));
                         if(read != sizeof(event_in))
                     throw std::runtime_error("Short read from device " + std::to_string(input.number()));
+
+                    std::cout << "event:  "
+                              <<  " type = 0x" << std::left << std::setw(4) << std::hex << event_in.type
+                              <<  " code = 0x" << std::left << std::setw(4) << std::hex << event_in.code
+                              << " value = 0x" << std::left << std::setw(4) << std::hex << event_in.value
+                              << " (" << std::setw(0) << std::dec << event_in.value << ")"
+                              << _n;
 
                     std::memset(&event_out, 0, sizeof(event_out));
 
