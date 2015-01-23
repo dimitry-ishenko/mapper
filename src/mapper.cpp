@@ -69,17 +69,17 @@ const app::events GAMEPAD_BUTTONS  = range(BTN_GAMEPAD, BTN_THUMBR);
 
 #define output_device(n, e) output_device_(n, e)
 
-#define send_event(n, e, v)                     \
-{                                               \
-    event.type = app::type(e);                  \
-    event.code = app::code(e);                  \
-    event.value = v;                            \
-    outputs.at(n).write(&event, sizeof(event)); \
-}                                               \
+#define send_event(n, e, v)                         \
+{                                                   \
+    event.type = app::type(e);                      \
+    event.code = app::code(e);                      \
+    event.value = v;                                \
+    outputs.at(n).write(&event, sizeof(event));     \
+}                                                   \
 
 #define when(c, a) if(c) { a }
 
-#define map(ni, ei, no, eo, vo) when(input.number() == ni && ei == event_in, send_event(no, eo, vo))
+#define map(ni, ei, no, eo, vo) when(number_in == ni && ei == event_in, send_event(no, eo, vo))
 
 ////////////////////////////////////////////////////////////////////////////////
 int main(int , char* [])
@@ -117,10 +117,9 @@ int main(int , char* [])
         std::cout << _n;
 
         input_event event;
-        int number_in = 0;
 
         // main loop
-        for(;;)
+        for(int ri = 0; ; )
         {
             int n = poll(&desc[0], desc.size(), -1);
             if(n < 0)
@@ -130,17 +129,18 @@ int main(int , char* [])
                 else throw errno_error();
             }
 
-            for(; n > 0; number_in = ++number_in % desc.size())
+            for(; n > 0; ri = ++ri % desc.size())
             {
-                if(desc[number_in].revents & POLL_IN)
+                if(desc[ri].revents & POLL_IN)
                 {
-                    app::input& input = inputs[number_in]; // used in macros
+                    app::input& input = inputs[ri]; // used in macros
 
                     auto read = input.read(&event, sizeof(event));
                         if(read != sizeof(event))
                     throw std::runtime_error("Short read from device " + std::to_string(input.number()));
 
                     // for use in macros
+                    int number_in = input.number();
                     app::event event_in = static_cast<app::event>((event.type << 16) + event.code);
                     int value_in = event.value;
 
