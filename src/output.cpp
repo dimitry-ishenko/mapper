@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <cstring>
 #include <map>
+#include <set>
 #include <stdexcept>
 
 #include <linux/uinput.h>
@@ -15,7 +16,8 @@ namespace app
 ////////////////////////////////////////////////////////////////////////////////
 const std::string output::path = "/dev/uinput";
 
-const std::map<int, int> type_map =
+////////////////////////////////////////////////////////////////////////////////
+const std::map<int, int> _map =
 {
     { EV_KEY, UI_SET_KEYBIT },
     { EV_REL, UI_SET_RELBIT },
@@ -32,13 +34,20 @@ void output::open()
     struct uinput_user_dev dev;
     std::memset(&dev, 0, sizeof(dev));
 
-    for(const app::event& event: _M_events)
+    std::set<int> _set;
+    for(app::event e: _M_events)
     {
-        auto ri = type_map.find(event.type);
-        if(ri != type_map.end())
+        int type = app::type(e);
+
+        auto ri = _map.find(type);
+        if(ri != _map.end())
         {
-            control(UI_SET_EVBIT, event.type);
-            for(int code: event.codes) control(ri->second, code);
+            if(!_set.count(type))
+            {
+                control(UI_SET_EVBIT, type);
+                _set.insert(type);
+            }
+            control(ri->second, code(e));
         }
     }
 

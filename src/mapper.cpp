@@ -47,64 +47,41 @@ void input_device_(int number, const std::string& path, bool exclusive = false)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void output_device_(int number, std::string&& name, const app::events& events)
+void output_device_(int number, const app::events& events)
 {
     if(outputs.count(number))
         throw std::invalid_argument("Duplicate output device " + std::to_string(number));
 
     std::cout << "Adding output device " << number << _n;
-    outputs.emplace(number, app::output(number, std::move(name), events));
+    outputs.emplace(number, app::output(number, "device", events));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-const app::events keyboard
-{
-    { EV_KEY, range(KEY_ESC, KEY_UNKNOWN) }
-};
-
-////////////////////////////////////////////////////////////////////////////////
-const app::events mouse
-{
-    { EV_KEY, range(BTN_MISC, BTN_TASK) },
-    { EV_REL, range(REL_X, REL_MAX) },
-};
-
-////////////////////////////////////////////////////////////////////////////////
-const app::events joystick
-{
-    { EV_KEY, range(BTN_JOYSTICK, BTN_DEAD) },
-    { EV_ABS, range(ABS_X, ABS_MAX) },
-};
+const app::events KEYBOARD_KEYS    = range(KEY_ESC, KEY_UNKNOWN);
+const app::events MOUSE_BUTTONS    = range(BTN_MOUSE, BTN_TASK);
+const app::events JOYSTICK_BUTTONS = range(BTN_JOYSTICK, BTN_DEAD);
+const app::events GAMEPAD_BUTTONS  = range(BTN_GAMEPAD, BTN_THUMBR);
 
 ////////////////////////////////////////////////////////////////////////////////
 #define input_device(number, path) input_device_(number, #path)
 #define exclusive_device(number, path) input_device_(number, #path, true)
 
-#define output_device(number, type) output_device_(number, #type, type)
+#define output_device(number, events) output_device_(number, events)
 
-#define map(number_in, type_in, code_in, number_out, type_out, code_out, value_out)         \
-    if(input.number() == number_in && event_in.type == type_in && event_in.code == code_in) \
-    {                                                                                       \
-        event_out.type = type_out;                                                          \
-        event_out.code = code_out;                                                          \
-        event_out.value = value_out;                                                        \
-        outputs.at(number_out).write(&event_out, sizeof(event_out));                        \
-    }                                                                                       \
+#define send_event(number_out, event_out, value_out)    \
+{                                                       \
+    out.type = app::type(event_out);                    \
+    out.code = app::code(event_out);                    \
+    out.value = value_out;                              \
+    outputs.at(number_out).write(&out, sizeof(out));    \
+}                                                       \
 
-#define when(condition, action) \
-    if(condition)               \
-    {                           \
-        action                  \
-    }                           \
+#define map(number_in, event_in, number_out, event_out, value_out)  \
+    if(input.number() == number_in && event_in == event)            \
+send_event(number_out, event_out, value_out)
 
-#define send_event(number, type, code, value)                       \
-    {                                                               \
-        event_out.type = type;                                      \
-        event_out.code = code;                                      \
-        event_out.value = value;                                    \
-        outputs.at(number).write(&event_out, sizeof(event_out));    \
-    }                                                               \
+#define when(condition, action) if(condition) { action }
 
 ////////////////////////////////////////////////////////////////////////////////
 int main(int , char* [])
@@ -141,7 +118,7 @@ int main(int , char* [])
         }
         std::cout << _n;
 
-        input_event event_in, event_out;
+        input_event in, out;
 
         // main loop
         for(;;)
@@ -160,31 +137,27 @@ int main(int , char* [])
                 {
                     app::input& input = inputs[number_in];
 
-                    auto read = input.read(&event_in, sizeof(event_in));
-                        if(read != sizeof(event_in))
+                    auto read = input.read(&in, sizeof(in));
+                        if(read != sizeof(in))
                     throw std::runtime_error("Short read from device " + std::to_string(input.number()));
 
-                    std::cout << "event:  "
-                              <<  " type = 0x" << std::left << std::setw(4) << std::hex << event_in.type
-                              <<  " code = 0x" << std::left << std::setw(4) << std::hex << event_in.code
-                              << " value = 0x" << std::left << std::setw(4) << std::hex << event_in.value
-                              << " (" << std::setw(0) << std::dec << event_in.value << ")"
-                              << _n;
+                    app::event event = static_cast<app::event>((in.type << 16) + in.value);
+                    int value = in.value;
 
-                    std::memset(&event_out, 0, sizeof(event_out));
+                    std::memset(&out, 0, sizeof(out));
 
                     #define DEFINE_MAPPING
                     #include "map.h"
                     #undef DEFINE_MAPPING
 
                     // send sync events to all output devices
-                    if(event_in.type == EV_SYN)
+                    if(in.type == EV_SYN)
                     {
-                        std::memset(&event_in.time, 0, sizeof(event_in.time));
+                        std::memset(&in.time, 0, sizeof(in.time));
                         for(auto& ri: outputs)
                         {
                             app::output& output = ri.second;
-                            output.write(&event_in, sizeof(event_in));
+                            output.write(&in, sizeof(in));
                         }
                     }
 
