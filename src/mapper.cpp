@@ -171,7 +171,7 @@ int main(int , char* [])
     }
     catch(std::exception& e)
     {
-        std::cerr << e.what() << _n;
+        std::cerr << _n << e.what() << _n;
         return 1;
     }
 }
