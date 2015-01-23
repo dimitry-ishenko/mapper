@@ -30,4 +30,11 @@ for event in ${events}; do
 done
 cout <<EOF
 };
+
+const std::map<event, std::string> event_name =
+{
 EOF
+for event in ${events}; do
+    cout <<< "{ ${event}, \"${event}\" },"
+done
+cout <<< "};"

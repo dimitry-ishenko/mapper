@@ -64,24 +64,22 @@ const app::events JOYSTICK_BUTTONS = range(BTN_JOYSTICK, BTN_DEAD);
 const app::events GAMEPAD_BUTTONS  = range(BTN_GAMEPAD, BTN_THUMBR);
 
 ////////////////////////////////////////////////////////////////////////////////
-#define input_device(number, path) input_device_(number, #path)
-#define exclusive_device(number, path) input_device_(number, #path, true)
+#define input_device(n, p) input_device_(n, #p)
+#define exclusive_device(n, p) input_device_(n, #p, true)
 
-#define output_device(number, events) output_device_(number, events)
+#define output_device(n, e) output_device_(n, e)
 
-#define send_event(number_out, event_out, value_out)    \
-{                                                       \
-    out.type = app::type(event_out);                    \
-    out.code = app::code(event_out);                    \
-    out.value = value_out;                              \
-    outputs.at(number_out).write(&out, sizeof(out));    \
-}                                                       \
+#define send_event(n, e, v)                     \
+{                                               \
+    event.type = app::type(e);                  \
+    event.code = app::code(e);                  \
+    event.value = v;                            \
+    outputs.at(n).write(&event, sizeof(event)); \
+}                                               \
 
-#define map(number_in, event_in, number_out, event_out, value_out)  \
-    if(input.number() == number_in && event_in == event)            \
-send_event(number_out, event_out, value_out)
+#define when(c, a) if(c) { a }
 
-#define when(condition, action) if(condition) { action }
+#define map(ni, ei, no, eo, vo) when(input.number() == ni && ei == event_in, send_event(no, eo, vo))
 
 ////////////////////////////////////////////////////////////////////////////////
 int main(int , char* [])
@@ -118,7 +116,8 @@ int main(int , char* [])
         }
         std::cout << _n;
 
-        input_event in, out;
+        input_event event;
+        int number_in = 0;
 
         // main loop
         for(;;)
@@ -131,33 +130,40 @@ int main(int , char* [])
                 else throw errno_error();
             }
 
-            for(int number_in = 0; n > 0 && number_in < desc.size(); ++number_in)
+            for(; n > 0; number_in = ++number_in % desc.size())
             {
                 if(desc[number_in].revents & POLL_IN)
                 {
-                    app::input& input = inputs[number_in];
+                    app::input& input = inputs[number_in]; // used in macros
 
-                    auto read = input.read(&in, sizeof(in));
-                        if(read != sizeof(in))
+                    auto read = input.read(&event, sizeof(event));
+                        if(read != sizeof(event))
                     throw std::runtime_error("Short read from device " + std::to_string(input.number()));
 
-                    app::event event = static_cast<app::event>((in.type << 16) + in.code);
-                    int value = in.value;
+                    // for use in macros
+                    app::event event_in = static_cast<app::event>((event.type << 16) + event.code);
+                    int value_in = event.value;
 
-                    std::memset(&out, 0, sizeof(out));
+                    using std::setw; using std::left;
+
+                    auto ri = event_name.find(event_in);
+                        if(ri != event_name.end())
+                    std::cout << "event = " << left << setw(20) << ri->second << " value = " << setw(0) << value_in << _n;
+
+                    std::memset(&event, 0, sizeof(event));
 
                     #define DEFINE_MAPPING
                     #include "map.h"
                     #undef DEFINE_MAPPING
 
                     // send sync events to all output devices
-                    if(in.type == EV_SYN)
+                    if(event.type == EV_SYN)
                     {
-                        std::memset(&in.time, 0, sizeof(in.time));
+                        std::memset(&event.time, 0, sizeof(event.time));
                         for(auto& ri: outputs)
                         {
                             app::output& output = ri.second;
-                            output.write(&in, sizeof(in));
+                            output.write(&event, sizeof(event));
                         }
                     }
 

@@ -15,6 +15,15 @@
 // Define output devices using the following macros:
 //
 // output_device(number, events);
+//
+//  KEYBOARD_KEYS
+//  MOUSE_BUTTONS
+//  JOYSTICK_BUTTONS
+//  GAMEPAD_BUTTONS
+//  KEY_...
+//  BTN_...
+//  REL_...
+//  ABS_...
 
 
 
@@ -28,14 +37,24 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Define mappings using the following macros:
 //
-//
-// map(number_in, event_in, number_out, event_out, value_out);
-//
 // when(condition,
 //     action;
 // );
 //
 // send_event(number_out, event_out, value_out);
+//
+// map(number_from, event_from, number_to, event_to, value_to);
+//
+//  number_in
+//  event_in
+//  value_in
+//  KEY_...
+//  BTN_...
+//  REL_...
+//  ABS_...
+//  is_kbd()
+//  is_rel()
+//  is_abs()
 
 
 
