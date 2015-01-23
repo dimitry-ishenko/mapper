@@ -141,7 +141,7 @@ int main(int , char* [])
                         if(read != sizeof(in))
                     throw std::runtime_error("Short read from device " + std::to_string(input.number()));
 
-                    app::event event = static_cast<app::event>((in.type << 16) + in.value);
+                    app::event event = static_cast<app::event>((in.type << 16) + in.code);
                     int value = in.value;
 
                     std::memset(&out, 0, sizeof(out));
