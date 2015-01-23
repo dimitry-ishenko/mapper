@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef UINPUT_HPP
-#define UINPUT_HPP
+#ifndef OUTPUT_HPP
+#define OUTPUT_HPP
 
 ////////////////////////////////////////////////////////////////////////////////
 #include "storage/file.hpp"
@@ -47,15 +47,15 @@ inline bool operator<(const event& x, const event& y) noexcept
 typedef std::set<event> events;
 
 ////////////////////////////////////////////////////////////////////////////////
-class uinput: public storage::file
+class output: public storage::file
 {
 public:
-    uinput() = default;
-    uinput(const uinput&) = delete;
-    uinput(uinput&& x) noexcept { swap(x); }
+    output() = default;
+    output(const output&) = delete;
+    output(output&& x) noexcept { swap(x); }
 
     template<typename Name, typename Events>
-    uinput(int number, Name&& name, Events&& events)
+    output(int number, Name&& name, Events&& events)
     {
         static_assert(std::is_convertible<Name, std::string>::value, "Name must be convertible to std::string");
         static_assert(std::is_convertible<Events, app::events>::value, "Events must be convertible to app::events");
@@ -64,19 +64,19 @@ public:
         _M_name = std::forward<Name>(name);
         _M_events = std::forward<Events>(events);
     }
-    ~uinput() { close(); }
+    ~output() { close(); }
 
     void open();
     void close();
 
-    uinput& operator=(const uinput&) = delete;
-    uinput& operator=(uinput&& x) noexcept
+    output& operator=(const output&) = delete;
+    output& operator=(output&& x) noexcept
     {
         swap(x);
         return (*this);
     }
 
-    void swap(uinput& x) noexcept
+    void swap(output& x) noexcept
     {
         storage::file::swap(x);
         std::swap(_M_number, x._M_number);
@@ -99,4 +99,4 @@ protected:
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-#endif // UINPUT_HPP
+#endif // OUTPUT_HPP

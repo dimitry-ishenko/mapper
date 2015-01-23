@@ -3,7 +3,7 @@
 #include "errno_error.hpp"
 #include "input.hpp"
 #include "storage/file.hpp"
-#include "uinput.hpp"
+#include "output.hpp"
 
 #include <cstring>
 #include <iostream>
@@ -27,7 +27,7 @@ using namespace app;
 constexpr char _n = '\n';
 
 typedef std::vector<input> input_devices;
-typedef std::map<int, uinput> output_devices;
+typedef std::map<int, output> output_devices;
 
 ////////////////////////////////////////////////////////////////////////////////
 input_devices inputs;
@@ -52,7 +52,7 @@ void output_device_(int number, std::string&& name, const app::events& events)
         throw std::invalid_argument("Duplicate output device " + std::to_string(number));
 
     std::cout << "Adding output device " << number << _n;
-    outputs.emplace(number, app::uinput(number, std::move(name), events));
+    outputs.emplace(number, app::output(number, std::move(name), events));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -133,7 +133,7 @@ int main(int , char* [])
         std::cout << "Opening output devices:";
         for(auto& ri: outputs)
         {
-            app::uinput& output = ri.second;
+            app::output& output = ri.second;
 
             std::cout << ' ' << output.number();
             output.open();
@@ -175,7 +175,7 @@ int main(int , char* [])
                         std::memset(&event_in.time, 0, sizeof(event_in.time));
                         for(auto& ri: outputs)
                         {
-                            app::uinput& output = ri.second;
+                            app::output& output = ri.second;
                             output.write(&event_in, sizeof(event_in));
                         }
                     }

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-#include "uinput.hpp"
+#include "output.hpp"
 
 #include <cstdio>
 #include <cstring>
@@ -13,7 +13,7 @@ namespace app
 {
 
 ////////////////////////////////////////////////////////////////////////////////
-const std::string uinput::path = "/dev/uinput";
+const std::string output::path = "/dev/uinput";
 
 const std::map<int, int> type_map =
 {
@@ -23,7 +23,7 @@ const std::map<int, int> type_map =
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-void uinput::open()
+void output::open()
 {
     if(is_open()) throw std::runtime_error("uinput::open(): Already open");
 
@@ -53,7 +53,7 @@ void uinput::open()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void uinput::close()
+void output::close()
 {
     if(is_open()) control(UI_DEV_DESTROY);
     storage::file::close();
