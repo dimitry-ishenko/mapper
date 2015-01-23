@@ -33,6 +33,12 @@ inline constexpr bool is_abs(app::event e) noexcept { return type(e) == EV_ABS; 
 typedef std::set<event> events;
 
 ////////////////////////////////////////////////////////////////////////////////
+inline app::events operator|(app::event x, app::event y)
+{
+    return app::events { x, y };
+}
+
+////////////////////////////////////////////////////////////////////////////////
 inline app::events operator|(app::events x, app::event y)
 {
     x.insert(y);
