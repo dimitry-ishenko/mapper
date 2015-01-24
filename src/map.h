@@ -66,18 +66,18 @@
 //map(JOY_0,       ABS_RZ, JOY_1,       ABS_RZ, value_in);
 //map(JOY_0, ABS_THROTTLE, JOY_1, ABS_THROTTLE, value_in);
 //
-//map(JOY_0,  BTN_TRIGGER, KEY_1,        KEY_G, value_in);
-//map(JOY_0,    BTN_THUMB, KEY_1,        KEY_G, value_in);
-//map(JOY_0,   BTN_THUMB2, KEY_1,        KEY_G, value_in);
-//map(JOY_0,      BTN_TOP, KEY_1,        KEY_G, value_in);
-//map(JOY_0,     BTN_TOP2, KEY_1,        KEY_G, value_in);
-//map(JOY_0,   BTN_PINKIE, KEY_1,        KEY_G, value_in);
+//map(JOY_0,  BTN_TRIGGER, KEY_1,        KEY_A, value_in);
+//map(JOY_0,    BTN_THUMB, KEY_1,        KEY_B, value_in);
+//map(JOY_0,   BTN_THUMB2, KEY_1,        KEY_C, value_in);
+//map(JOY_0,      BTN_TOP, KEY_1,        KEY_D, value_in);
+//map(JOY_0,     BTN_TOP2, KEY_1,        KEY_E, value_in);
+//map(JOY_0,   BTN_PINKIE, KEY_1,        KEY_F, value_in);
 //map(JOY_0,     BTN_BASE, KEY_1,        KEY_G, value_in);
-//map(JOY_0,    BTN_BASE2, KEY_1,        KEY_G, value_in);
-//map(JOY_0,    BTN_BASE3, KEY_1,        KEY_G, value_in);
-//map(JOY_0,    BTN_BASE4, KEY_1,        KEY_G, value_in);
-//map(JOY_0,    BTN_BASE5, KEY_1,        KEY_G, value_in);
-//map(JOY_0,    BTN_BASE6, KEY_1,        KEY_G, value_in);
+//map(JOY_0,    BTN_BASE2, KEY_1,        KEY_H, value_in);
+//map(JOY_0,    BTN_BASE3, KEY_1,        KEY_I, value_in);
+//map(JOY_0,    BTN_BASE4, KEY_1,        KEY_J, value_in);
+//map(JOY_0,    BTN_BASE5, KEY_1,        KEY_K, value_in);
+//map(JOY_0,    BTN_BASE6, KEY_1,        KEY_L, value_in);
 //
 //when(number_in == JOY_0 && event_in == ABS_HAT0X,
 //    static event prev = event(0);
