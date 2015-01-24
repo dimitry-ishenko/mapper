@@ -166,11 +166,11 @@ int main(int , char* [])
                     app::event event_in = static_cast<app::event>((event.type << 16) + event.code);
                     int value_in = event.value;
 
-                    using std::setw; using std::left;
+                    //using std::setw; using std::left;
 
-                    auto ri = event_name.find(event_in);
-                        if(ri != event_name.end())
-                    std::cout << "event = " << left << setw(16) << ri->second << " value = " << setw(0) << value_in << _n;
+                    //auto ri = event_name.find(event_in);
+                    //    if(ri != event_name.end())
+                    //std::cout << "event = " << left << setw(16) << ri->second << " value = " << setw(0) << value_in << _n;
 
                     std::memset(&event, 0, sizeof(event));
 
