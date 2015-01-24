@@ -106,17 +106,17 @@ const app::events JOYSTICK_BUTTONS = range(BTN_JOYSTICK, BTN_DEAD);
 const app::events GAMEPAD_BUTTONS  = range(BTN_GAMEPAD, BTN_THUMBR);
 
 ////////////////////////////////////////////////////////////////////////////////
-#define input_device(n, p)                          \
-    constexpr int n = __LINE__;                     \
-    input_device_(n, #n, #p)                        \
+#define input_device(n, p)          \
+    constexpr int n = __LINE__;     \
+    input_device_(n, #n, #p);       \
 
-#define exclusive_device(n, p)                      \
-    constexpr int n = __LINE__;                     \
-    input_device_(n, #n, #p, true)                  \
+#define exclusive_device(n, p)      \
+    constexpr int n = __LINE__;     \
+    input_device_(n, #n, #p, true); \
 
-#define output_device(n, e)                         \
-    constexpr int n = __LINE__;                     \
-    output_device_(n, #n, e)                        \
+#define output_device(n, e)         \
+    constexpr int n = __LINE__;     \
+    output_device_(n, #n, e);       \
 
 #define send_event(n, e, v)                         \
 {                                                   \
