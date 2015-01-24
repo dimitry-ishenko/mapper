@@ -66,29 +66,29 @@
 //map(JOY_0,       ABS_RZ, JOY_1,       ABS_RZ, value_in);
 //map(JOY_0, ABS_THROTTLE, JOY_1, ABS_THROTTLE, value_in);
 //
-//map(JOY_0,  BTN_TRIGGER, JOY_1,             , value_in);
-//map(JOY_0,    BTN_THUMB, JOY_1,             , value_in);
-//map(JOY_0,   BTN_THUMB2, JOY_1,             , value_in);
-//map(JOY_0,      BTN_TOP, JOY_1,             , value_in);
-//map(JOY_0,     BTN_TOP2, JOY_1,             , value_in);
-//map(JOY_0,   BTN_PINKIE, JOY_1,             , value_in);
-//map(JOY_0,     BTN_BASE, JOY_1,             , value_in);
-//map(JOY_0,    BTN_BASE2, JOY_1,        KEY_G, value_in);
-//map(JOY_0,    BTN_BASE3, JOY_1,             , value_in);
-//map(JOY_0,    BTN_BASE4, JOY_1,             , value_in);
-//map(JOY_0,    BTN_BASE5, JOY_1,             , value_in);
-//map(JOY_0,    BTN_BASE6, JOY_1,             , value_in);
+//map(JOY_0,  BTN_TRIGGER, KEY_1,        KEY_G, value_in);
+//map(JOY_0,    BTN_THUMB, KEY_1,        KEY_G, value_in);
+//map(JOY_0,   BTN_THUMB2, KEY_1,        KEY_G, value_in);
+//map(JOY_0,      BTN_TOP, KEY_1,        KEY_G, value_in);
+//map(JOY_0,     BTN_TOP2, KEY_1,        KEY_G, value_in);
+//map(JOY_0,   BTN_PINKIE, KEY_1,        KEY_G, value_in);
+//map(JOY_0,     BTN_BASE, KEY_1,        KEY_G, value_in);
+//map(JOY_0,    BTN_BASE2, KEY_1,        KEY_G, value_in);
+//map(JOY_0,    BTN_BASE3, KEY_1,        KEY_G, value_in);
+//map(JOY_0,    BTN_BASE4, KEY_1,        KEY_G, value_in);
+//map(JOY_0,    BTN_BASE5, KEY_1,        KEY_G, value_in);
+//map(JOY_0,    BTN_BASE6, KEY_1,        KEY_G, value_in);
 //
 //when(number_in == JOY_0 && event_in == ABS_HAT0X,
 //    static event prev = event(0);
 //    if(value_in)
 //    {
 //        prev = (value_in < 0) ? KEY_KP4 : KEY_KP6;
-//        send_event_mod(JOY_1, KEY_LEFTSHIFT, prev, 1);
+//        send_event_mod(KEY_1, KEY_LEFTALT, prev, 1);
 //    }
 //    else
 //    {
-//        send_event_mod(JOY_1, KEY_LEFTSHIFT, prev, 0);
+//        send_event_mod(KEY_1, KEY_LEFTALT, prev, 0);
 //        prev = event(0);
 //    }
 //)
@@ -98,11 +98,11 @@
 //    if(value_in)
 //    {
 //        prev = (value_in < 0) ? KEY_KP2 : KEY_KP8;
-//        send_event_mod(JOY_1, KEY_LEFTSHIFT, prev, 1);
+//        send_event_mod(KEY_1, KEY_LEFTALT, prev, 1);
 //    }
 //    else
 //    {
-//        send_event_mod(JOY_1, KEY_LEFTSHIFT, prev, 0);
+//        send_event_mod(KEY_1, KEY_LEFTALT, prev, 0);
 //        prev = event(0);
 //    }
 //)
