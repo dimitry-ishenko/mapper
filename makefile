@@ -1,8 +1,7 @@
 ########## DEFINITIONS ##########
 TARGET		:= mapper
 
-SUBDIRS		:= src lib lib/storage
-#SUBDIRS		:= src $(shell find lib -mindepth 1 -type d)
+SUBDIRS		:= src $(shell find lib -mindepth 1 -type d)
 INCLUDES	:= -Ilib
 LIBRARIES	:= -pthread
 DEFINES		:= -D_FILE_OFFSET_BITS=64
