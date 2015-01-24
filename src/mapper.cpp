@@ -79,10 +79,10 @@ const app::events GAMEPAD_BUTTONS  = range(BTN_GAMEPAD, BTN_THUMBR);
 
 #define send_event(n, e, v)                         \
 {                                                   \
-    event.type = app::type(e);                      \
-    event.code = app::code(e);                      \
-    event.value = v;                                \
-    outputs.at(n).write(&event, sizeof(event));     \
+    ev.type = app::type(e);                         \
+    ev.code = app::code(e);                         \
+    ev.value = v;                                   \
+    outputs.at(n).write(&ev, sizeof(ev));           \
 }                                                   \
 
 #define send_sync(n) send_event(n, static_cast<app::event>(EV_SYN << 16), 0)
@@ -141,7 +141,7 @@ int main(int , char* [])
         sigaction(SIGTERM, &sa, NULL);
 
         // main loop
-        input_event event;
+        input_event ev;
         int ri = 0;
 
         while(running)
@@ -160,14 +160,14 @@ int main(int , char* [])
                 {
                     app::input& input = inputs[ri]; // used in macros
 
-                    auto read = input.read(&event, sizeof(event));
-                        if(read != sizeof(event))
+                    auto read = input.read(&ev, sizeof(ev));
+                        if(read != sizeof(ev))
                     throw std::runtime_error("Short read from device " + input.name());
 
                     // for use in macros
                     int number_in = input.number();
-                    app::event event_in = static_cast<app::event>((event.type << 16) + event.code);
-                    int value_in = event.value;
+                    app::event event_in = static_cast<app::event>((ev.type << 16) + ev.code);
+                    int value_in = ev.value;
 
                     //using std::setw; using std::left;
 
@@ -175,20 +175,20 @@ int main(int , char* [])
                     //    if(ri != event_name.end())
                     //std::cout << "event = " << left << setw(16) << ri->second << " value = " << setw(0) << value_in << _n;
 
-                    std::memset(&event, 0, sizeof(event));
+                    std::memset(&ev, 0, sizeof(ev));
 
                     #define DEFINE_MAPPING
                     #include "map.h"
                     #undef DEFINE_MAPPING
 
                     // send sync events to all output devices
-                    if(event.type == EV_SYN)
+                    if(ev.type == EV_SYN)
                     {
-                        std::memset(&event.time, 0, sizeof(event.time));
+                        std::memset(&ev.time, 0, sizeof(ev.time));
                         for(auto& ri: outputs)
                         {
                             app::output& output = ri.second;
-                            output.write(&event, sizeof(event));
+                            output.write(&ev, sizeof(ev));
                         }
                     }
 
