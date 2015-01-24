@@ -121,16 +121,9 @@ const app::events GAMEPAD_BUTTONS  = range(BTN_GAMEPAD, BTN_THUMBR);
 #define send_event(n, e, v, m...) send_event_(n, e, v, ##m);
 #define send_sync(n) send_sync_(n);
 
-#define send_event_mod(n, m, e, v)                  \
-    if(v==1) { send_event(n, m, v); send_sync(n); } \
-    send_event(n, e, v);                            \
-    if(v==0) { send_sync(n); send_event(n, m, v); } \
-
 #define when(c, a) if(c) { a }
 
 #define map(ni, ei, no, eo, vo, mo...) when(number_in == ni && ei == event_in, send_event(no, eo, vo, ##mo))
-
-#define map_mod(ni, ei, no, mo, eo, vo) when(number_in == ni && ei == event_in, send_event_mod(no, mo, eo, vo))
 
 ////////////////////////////////////////////////////////////////////////////////
 int main(int , char* [])
