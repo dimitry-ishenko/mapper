@@ -1,4 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2015 Dimitry Ishenko
+// Distributed under the GNU GPL v2. For full terms please visit:
+// http://www.gnu.org/licenses/gpl.html
+//
+// Contact: dimitry (dot) ishenko (at) (gee) mail (dot) com
+
+////////////////////////////////////////////////////////////////////////////////
 #ifndef EVENT_HPP
 #define EVENT_HPP
 
