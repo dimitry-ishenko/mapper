@@ -1,20 +1,16 @@
 ////////////////////////////////////////////////////////////////////////////////
-#include "enum.hpp"
 #include "errno_error.hpp"
 #include "input.hpp"
-#include "storage/file.hpp"
 #include "output.hpp"
 
 #include <cstring>
 #include <iomanip>
 #include <iostream>
 #include <map>
-#include <memory>
 #include <stdexcept>
 #include <string>
 #include <vector>
 
-#include <linux/input.h>
 #include <poll.h>
 #include <signal.h>
 
