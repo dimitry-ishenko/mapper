@@ -58,7 +58,7 @@ void output::open()
         }
     }
 
-    std::snprintf(dev.name, sizeof(dev.name), "%s-%d", _M_name.data(), _M_number);
+    std::snprintf(dev.name, sizeof(dev.name), "%s", _M_name.data());
     dev.id.bustype = BUS_USB;
     dev.id.vendor  = 0x42;
     dev.id.product = _M_number;
