@@ -44,7 +44,7 @@ void input_device_(int number, const std::string& name, const std::string& path,
         if(input.number() == number)
     throw std::invalid_argument("Duplicate input device " + name);
 
-    std::cout << "Adding device " << name << ": " << path << _n;
+    std::cout << "Adding  " << name << ": " << path << _n;
     inputs.emplace_back(number, name, path, exclusive);
 }
 
@@ -53,7 +53,7 @@ void output_device_(int number, const std::string& name, const app::events& even
 {
     if(outputs.count(number)) throw std::invalid_argument("Duplicate output device " + name);
 
-    std::cout << "Adding device " << name << _n;
+    std::cout << "Adding  " << name << _n;
     outputs.emplace(number, app::output(number, name, events));
 }
 
@@ -105,6 +105,7 @@ int main(int , char* [])
         #define DEFINE_DEVICE
         #include "map.h"
         #undef DEFINE_DEVICE
+        std::cout << _n;
 
         std::vector<pollfd> desc;
         desc.reserve(inputs.size());
@@ -112,20 +113,22 @@ int main(int , char* [])
         // open input devices
         for(app::input& input: inputs)
         {
-            std::cout << "Opening device " << input.name() << _n;
+            std::cout << "Opening " << input.name() << _n;
             input.open();
 
             desc.emplace_back(pollfd { .fd = input.get_id(), .events = POLL_IN });
         }
+        std::cout << _n;
 
         // open and initialize output devices
         for(auto& ri: outputs)
         {
             app::output& output = ri.second;
 
-            std::cout << "Opening device " << output.name() << _n;
+            std::cout << "Opening " << output.name() << _n;
             output.open();
         }
+        std::cout << _n;
 
         // install signal handler
         struct sigaction sa;
@@ -159,7 +162,7 @@ int main(int , char* [])
 
                     auto read = input.read(&event, sizeof(event));
                         if(read != sizeof(event))
-                    throw std::runtime_error("Short read from device " + std::to_string(input.number()));
+                    throw std::runtime_error("Short read from device " + input.name());
 
                     // for use in macros
                     int number_in = input.number();
