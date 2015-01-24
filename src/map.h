@@ -41,7 +41,8 @@
 //     action;
 // );
 //
-// send_event(number_out, event_out, value_out);
+// send_event(number, event, value);
+// send_event_mod(number, modifier, event, value);
 //
 // map(number_from, event_from, number_to, event_to, value_to);
 //
