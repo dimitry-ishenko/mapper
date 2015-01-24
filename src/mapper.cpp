@@ -118,15 +118,8 @@ const app::events GAMEPAD_BUTTONS  = range(BTN_GAMEPAD, BTN_THUMBR);
     constexpr int n = __LINE__;     \
     output_device_(n, #n, e);       \
 
-#define send_event(n, e, v)                         \
-{                                                   \
-    ev.type = app::type(e);                         \
-    ev.code = app::code(e);                         \
-    ev.value = v;                                   \
-    outputs.at(n).write(&ev, sizeof(ev));           \
-}                                                   \
-
-#define send_sync(n) send_event(n, static_cast<app::event>(EV_SYN << 16), 0)
+#define send_event(n, e, v, m...) send_event_(n, e, v, ##m);
+#define send_sync(n) send_sync_(n);
 
 #define send_event_mod(n, m, e, v)                  \
     if(v==1) { send_event(n, m, v); send_sync(n); } \
@@ -135,7 +128,7 @@ const app::events GAMEPAD_BUTTONS  = range(BTN_GAMEPAD, BTN_THUMBR);
 
 #define when(c, a) if(c) { a }
 
-#define map(ni, ei, no, eo, vo) when(number_in == ni && ei == event_in, send_event(no, eo, vo))
+#define map(ni, ei, no, eo, vo, mo...) when(number_in == ni && ei == event_in, send_event(no, eo, vo, ##mo))
 
 #define map_mod(ni, ei, no, mo, eo, vo) when(number_in == ni && ei == event_in, send_event_mod(no, mo, eo, vo))
 
