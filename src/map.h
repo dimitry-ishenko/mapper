@@ -6,15 +6,15 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Define input devices using the following macros:
 //
-// input_device(number, path);
-// exclusive_device(number, path);
+// input_device(name, path);
+// exclusive_device(name, path);
 
 
 
 ////////////////////////////////////////////////////////////////////////////////
 // Define output devices using the following macros:
 //
-// output_device(number, events);
+// output_device(name, events);
 //
 //  KEYBOARD_KEYS
 //  MOUSE_BUTTONS
@@ -41,10 +41,10 @@
 //     action;
 // );
 //
-// send_event(number, event, value);
-// send_event_mod(number, modifier, event, value);
+// send_event(name, event, value);
+// send_event_mod(name, modifier, event, value);
 //
-// map(number_from, event_from, number_to, event_to, value_to);
+// map(name_from, event_from, name_to, event_to, value_to);
 //
 //  number_in
 //  event_in

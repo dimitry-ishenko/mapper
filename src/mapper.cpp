@@ -36,24 +36,23 @@ output_devices outputs;
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-void input_device_(int number, const std::string& path, bool exclusive = false)
+void input_device_(int number, const std::string& name, const std::string& path, bool exclusive = false)
 {
     for(const app::input& input: inputs)
         if(input.number() == number)
-    throw std::invalid_argument("Duplicate input device " + std::to_string(number));
+    throw std::invalid_argument("Duplicate input device " + name);
 
-    std::cout << "Adding input device " << number << " - " << path << _n;
-    inputs.emplace_back(number, path, exclusive);
+    std::cout << "Adding device " << name << ": " << path << _n;
+    inputs.emplace_back(number, name, path, exclusive);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void output_device_(int number, const app::events& events)
+void output_device_(int number, const std::string& name, const app::events& events)
 {
-    if(outputs.count(number))
-        throw std::invalid_argument("Duplicate output device " + std::to_string(number));
+    if(outputs.count(number)) throw std::invalid_argument("Duplicate output device " + name);
 
-    std::cout << "Adding output device " << number << _n;
-    outputs.emplace(number, app::output(number, "device", events));
+    std::cout << "Adding device " << name << _n;
+    outputs.emplace(number, app::output(number, name, events));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -64,10 +63,17 @@ const app::events JOYSTICK_BUTTONS = range(BTN_JOYSTICK, BTN_DEAD);
 const app::events GAMEPAD_BUTTONS  = range(BTN_GAMEPAD, BTN_THUMBR);
 
 ////////////////////////////////////////////////////////////////////////////////
-#define input_device(n, p) input_device_(n, #p)
-#define exclusive_device(n, p) input_device_(n, #p, true)
+#define input_device(n, p)                          \
+    constexpr int n = __LINE__;                     \
+    input_device_(n, #n, #p)                        \
 
-#define output_device(n, e) output_device_(n, e)
+#define exclusive_device(n, p)                      \
+    constexpr int n = __LINE__;                     \
+    input_device_(n, #n, #p, true)                  \
+
+#define output_device(n, e)                         \
+    constexpr int n = __LINE__;                     \
+    output_device_(n, #n, e)                        \
 
 #define send_event(n, e, v)                         \
 {                                                   \
@@ -102,26 +108,22 @@ int main(int , char* [])
         desc.reserve(inputs.size());
 
         // open input devices
-        std::cout << "Opening input devices:";
         for(app::input& input: inputs)
         {
-            std::cout << ' ' << input.number();
+            std::cout << "Opening device " << input.name() << _n;
             input.open();
 
             desc.emplace_back(pollfd { .fd = input.get_id(), .events = POLL_IN });
         }
-        std::cout << _n;
 
         // open and initialize output devices
-        std::cout << "Opening output devices:";
         for(auto& ri: outputs)
         {
             app::output& output = ri.second;
 
-            std::cout << ' ' << output.number();
+            std::cout << "Opening device " << output.name() << _n;
             output.open();
         }
-        std::cout << _n;
 
         input_event event;
 
@@ -155,7 +157,7 @@ int main(int , char* [])
 
                     auto ri = event_name.find(event_in);
                         if(ri != event_name.end())
-                    std::cout << "event = " << left << setw(20) << ri->second << " value = " << setw(0) << value_in << _n;
+                    std::cout << "event = " << left << setw(16) << ri->second << " value = " << setw(0) << value_in << _n;
 
                     std::memset(&event, 0, sizeof(event));
 
@@ -184,7 +186,7 @@ int main(int , char* [])
     }
     catch(std::exception& e)
     {
-        std::cerr << _n << e.what() << _n;
+        std::cerr << e.what() << _n;
         return 1;
     }
 }
