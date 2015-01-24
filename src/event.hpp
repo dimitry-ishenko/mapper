@@ -28,8 +28,8 @@ enum event;
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-inline constexpr int type(app::event e) noexcept { return e >> 16; }
-inline constexpr int code(app::event e) noexcept { return e & 0xffff; }
+inline constexpr uint16_t type(app::event e) noexcept { return e >> 16; }
+inline constexpr uint16_t code(app::event e) noexcept { return e & 0xffff; }
 
 inline constexpr bool is_key(app::event e) noexcept { return type(e) == EV_KEY; }
 inline constexpr bool is_rel(app::event e) noexcept { return type(e) == EV_REL; }
