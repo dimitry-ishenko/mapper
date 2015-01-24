@@ -77,6 +77,13 @@ const app::events GAMEPAD_BUTTONS  = range(BTN_GAMEPAD, BTN_THUMBR);
     outputs.at(n).write(&event, sizeof(event));     \
 }                                                   \
 
+#define send_sync(n) send_event(n, static_cast<app::event>(EV_SYN << 16), 0)
+
+#define send_event_mod(n, m, e, v)                  \
+    if(v==1) { send_event(n, m, v); send_sync(n); } \
+    send_event(n, e, v);                            \
+    if(v==0) { send_sync(n); send_event(n, m, v); } \
+
 #define when(c, a) if(c) { a }
 
 #define map(ni, ei, no, eo, vo) when(number_in == ni && ei == event_in, send_event(no, eo, vo))
