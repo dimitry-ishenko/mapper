@@ -34,6 +34,8 @@ typedef std::map<int, output> output_devices;
 input_devices inputs;
 output_devices outputs;
 
+bool running = true;
+
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 void input_device_(int number, const std::string& name, const std::string& path, bool exclusive = false)
@@ -125,10 +127,21 @@ int main(int , char* [])
             output.open();
         }
 
-        input_event event;
+        // install signal handler
+        struct sigaction sa;
+        memset(&sa, 0, sizeof(sa));
+
+        sa.sa_handler = [](int) { running = false; };
+        sa.sa_flags = SA_RESTART;
+
+        sigaction(SIGINT, &sa, NULL);
+        sigaction(SIGTERM, &sa, NULL);
 
         // main loop
-        for(int ri = 0; ; )
+        input_event event;
+        int ri = 0;
+
+        while(running)
         {
             int n = poll(&desc[0], desc.size(), -1);
             if(n < 0)
@@ -182,6 +195,7 @@ int main(int , char* [])
             if(n > 0) throw std::runtime_error("Didn't process all incoming data");
         }
 
+        std::cout << "Exiting" << _n;
         return 0;
     }
     catch(std::exception& e)
