@@ -11,6 +11,7 @@
 #include "output.hpp"
 
 #include <cstring>
+#include <initializer_list>
 #include <iomanip>
 #include <iostream>
 #include <map>
@@ -58,6 +59,43 @@ void output_device_(int number, const std::string& name, const app::events& even
 
     std::cout << "Adding  " << name << _n;
     outputs.emplace(number, app::output(number, name, events));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void send_event_(int number, app::event event, int value)
+{
+    input_event x
+    {
+        { 0, 0 },
+        app::type(event),
+        app::code(event),
+        value
+    };
+    outputs.at(number).write(&x, sizeof(x));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+inline void send_sync_(int number)
+{
+    send_event_(number, static_cast<app::event>(EV_SYN << 16), 0);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void send_event_(int number, app::event event, int value, std::initializer_list<app::event> modifiers)
+{
+    if(value==1) for(app::event modifier: modifiers)
+    {
+        send_event_(number, modifier, value);
+        send_sync_(number);
+    }
+
+    send_event_(number, event, value);
+
+    if(value==0) for(app::event modifier: modifiers)
+    {
+        send_sync_(number);
+        send_event_(number, modifier, value);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
