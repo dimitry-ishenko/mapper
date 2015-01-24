@@ -99,6 +99,8 @@ const app::events GAMEPAD_BUTTONS  = range(BTN_GAMEPAD, BTN_THUMBR);
 
 #define map(ni, ei, no, eo, vo) when(number_in == ni && ei == event_in, send_event(no, eo, vo))
 
+#define map_mod(ni, ei, no, mo, eo, vo) when(number_in == ni && ei == event_in, send_event_mod(no, mo, eo, vo))
+
 ////////////////////////////////////////////////////////////////////////////////
 int main(int , char* [])
 {
