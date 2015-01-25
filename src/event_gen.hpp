@@ -1180,6 +1180,8 @@ constexpr int _ABS_CNT = ABS_CNT;
 
 enum event
 {
+EVT_NONE = 0,
+EVT_SYNC = EV_SYN << 16,
 KEY_RESERVED = (EV_KEY << 16) + _imp::_KEY_RESERVED,
 KEY_ESC = (EV_KEY << 16) + _imp::_KEY_ESC,
 KEY_1 = (EV_KEY << 16) + _imp::_KEY_1,

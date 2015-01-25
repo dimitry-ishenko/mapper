@@ -24,6 +24,8 @@ cout <<EOF
 
 enum event
 {
+EVT_NONE = 0,
+EVT_SYNC = EV_SYN << 16,
 EOF
 for event in ${events}; do
     cout <<< "${event} = (EV_${event:0:3} << 16) + _imp::_${event},"

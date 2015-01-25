@@ -116,7 +116,7 @@
 //map(JOY_0,    BTN_BASE6, JOY_1,    BTN_BASE6, value_in);
 //
 //when(name_in == JOY_0 && event_in == ABS_HAT0X,
-//    static event prev = event(0);
+//    static auto prev = EVT_NONE;
 //    if(value_in)
 //    {
 //        prev = (value_in < 0) ? KEY_KP4 : KEY_KP6;
@@ -125,12 +125,12 @@
 //    else
 //    {
 //        send_event(KBD_1, prev, 0, KEY_LEFTALT);
-//        prev = event(0);
+//        prev = EVT_NONE;
 //    }
 //);
 //
 //when(name_in == JOY_0 && event_in == ABS_HAT0Y,
-//    static event prev = event(0);
+//    static auto prev = EVT_NONE;
 //    if(value_in)
 //    {
 //        prev = (value_in < 0) ? KEY_KP8 : KEY_KP2;
@@ -139,7 +139,7 @@
 //    else
 //    {
 //        send_event(KBD_1, prev, 0, KEY_LEFTALT);
-//        prev = event(0);
+//        prev = EVT_NONE;
 //    }
 //);
 
