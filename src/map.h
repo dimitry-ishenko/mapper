@@ -45,10 +45,10 @@
 // send_event(name, event, value);
 // send_event(name, event, value, { modifier [, modifier ...] });
 //
-// map(name_from, event_from, name_to, event_to, value_to);
-// map(name_from, event_from, name_to, event_to, value_to, { modifier_to [, modifier_to ...] });
+// map(name_in, event_in, name_out, event_out, value_out);
+// map(name_in, event_in, name_out, event_out, value_out, { modifier_out [, modifier_out ...] });
 //
-//  number_in
+//  name_in
 //  event_in
 //  value_in
 //  KEY_...
@@ -80,7 +80,7 @@
 //map(JOY_0,    BTN_BASE5, JOY_1,    BTN_BASE5, value_in);
 //map(JOY_0,    BTN_BASE6, JOY_1,    BTN_BASE6, value_in);
 //
-//when(number_in == JOY_0 && event_in == ABS_HAT0X,
+//when(name_in == JOY_0 && event_in == ABS_HAT0X,
 //    static event prev = event(0);
 //    if(value_in)
 //    {
@@ -94,7 +94,7 @@
 //    }
 //);
 //
-//when(number_in == JOY_0 && event_in == ABS_HAT0Y,
+//when(name_in == JOY_0 && event_in == ABS_HAT0Y,
 //    static event prev = event(0);
 //    if(value_in)
 //    {

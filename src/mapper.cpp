@@ -133,7 +133,7 @@ const app::events GAMEPAD_BUTTONS  = range(BTN_GAMEPAD, BTN_THUMBR);
 
 #define when(c, a) if(c) { a }
 
-#define map(ni, ei, no, eo, vo, mo...) when(number_in == ni && ei == event_in, send_event(no, eo, vo, ##mo))
+#define map(ni, ei, no, eo, vo, mo...) when(name_in == ni && ei == event_in, send_event(no, eo, vo, ##mo))
 
 ////////////////////////////////////////////////////////////////////////////////
 int main(int , char* [])
@@ -202,7 +202,7 @@ int main(int , char* [])
                     throw std::runtime_error("Short read from device " + input.name());
 
                     // for use in macros
-                    int number_in = input.number();
+                    int name_in = input.number();
                     app::event event_in = static_cast<app::event>((e.type << 16) + e.code);
                     int value_in = e.value;
 
