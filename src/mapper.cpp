@@ -61,6 +61,11 @@ void output_device_(int number, const std::string& name, const app::events& even
     outputs.emplace(number, app::output(number, name, events));
 }
 
+inline void output_device_(int number, const std::string& name, app::event event)
+{
+    output_device_(number, name, app::events({ event }));
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 void send_event_(int number, app::event event, int value)
 {
@@ -81,7 +86,7 @@ inline void send_sync_(int number)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void send_event_(int number, app::event event, int value, std::initializer_list<app::event> modifiers)
+void send_event_(int number, app::event event, int value, const app::events& modifiers)
 {
     if(value==1) for(app::event modifier: modifiers)
     {
@@ -96,6 +101,11 @@ void send_event_(int number, app::event event, int value, std::initializer_list<
         send_sync_(number);
         send_event_(number, modifier, value);
     }
+}
+
+inline void send_event_(int number, app::event event, int value, app::event modifier)
+{
+    send_event_(number, event, value, app::events({ modifier }));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

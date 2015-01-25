@@ -74,8 +74,8 @@
 //map(JOY_0,     BTN_BASE, JOY_1,     BTN_BASE, value_in);
 //
 //map(JOY_0,    BTN_BASE2, KBD_1,        KEY_G, value_in);
-//map(JOY_0,    BTN_BASE3, KBD_1,      KEY_KP9, value_in, { KEY_LEFTALT });
-//map(JOY_0,    BTN_BASE4, KBD_1,      KEY_KP3, value_in, { KEY_LEFTALT });
+//map(JOY_0,    BTN_BASE3, KBD_1,      KEY_KP9, value_in, KEY_LEFTALT);
+//map(JOY_0,    BTN_BASE4, KBD_1,      KEY_KP3, value_in, KEY_LEFTALT);
 //
 //map(JOY_0,    BTN_BASE5, JOY_1,    BTN_BASE5, value_in);
 //map(JOY_0,    BTN_BASE6, JOY_1,    BTN_BASE6, value_in);
@@ -85,27 +85,27 @@
 //    if(value_in)
 //    {
 //        prev = (value_in < 0) ? KEY_KP4 : KEY_KP6;
-//        send_event(KBD_1, prev, 1, { KEY_LEFTALT });
+//        send_event(KBD_1, prev, 1, KEY_LEFTALT);
 //    }
 //    else
 //    {
-//        send_event(KBD_1, prev, 0, { KEY_LEFTALT });
+//        send_event(KBD_1, prev, 0, KEY_LEFTALT);
 //        prev = event(0);
 //    }
-//)
+//);
 //
 //when(number_in == JOY_0 && event_in == ABS_HAT0Y,
 //    static event prev = event(0);
 //    if(value_in)
 //    {
 //        prev = (value_in < 0) ? KEY_KP8 : KEY_KP2;
-//        send_event(KBD_1, prev, 1, { KEY_LEFTALT });
+//        send_event(KBD_1, prev, 1, KEY_LEFTALT);
 //    }
 //    else
 //    {
-//        send_event(KBD_1, prev, 0, { KEY_LEFTALT });
+//        send_event(KBD_1, prev, 0, KEY_LEFTALT);
 //        prev = event(0);
 //    }
-//)
+//);
 
 #endif
