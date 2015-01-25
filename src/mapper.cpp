@@ -180,10 +180,7 @@ int main(int , char* [])
         sigaction(SIGTERM, &sa, NULL);
 
         // main loop
-        input_event ev;
-        int ri = 0;
-
-        while(running)
+        for(int ri = 0; running; )
         {
             int n = poll(&desc[0], desc.size(), -1);
             if(n < 0)
@@ -199,14 +196,15 @@ int main(int , char* [])
                 {
                     app::input& input = inputs[ri]; // used in macros
 
-                    auto read = input.read(&ev, sizeof(ev));
-                        if(read != sizeof(ev))
+                    input_event e;
+                    auto read = input.read(&e, sizeof(e));
+                        if(read != sizeof(e))
                     throw std::runtime_error("Short read from device " + input.name());
 
                     // for use in macros
                     int number_in = input.number();
-                    app::event event_in = static_cast<app::event>((ev.type << 16) + ev.code);
-                    int value_in = ev.value;
+                    app::event event_in = static_cast<app::event>((e.type << 16) + e.code);
+                    int value_in = e.value;
 
                     //using std::setw; using std::left;
 
@@ -214,20 +212,19 @@ int main(int , char* [])
                     //    if(ri != event_name.end())
                     //std::cout << "event = " << left << setw(16) << ri->second << " value = " << setw(0) << value_in << _n;
 
-                    std::memset(&ev, 0, sizeof(ev));
-
                     #define DEFINE_MAPPING
                     #include "map.h"
                     #undef DEFINE_MAPPING
 
                     // send sync events to all output devices
-                    if(ev.type == EV_SYN)
+                    if(e.type == EV_SYN)
                     {
-                        std::memset(&ev.time, 0, sizeof(ev.time));
+                        e.time.tv_sec = 0;
+                        e.time.tv_usec = 0;
                         for(auto& ri: outputs)
                         {
                             app::output& output = ri.second;
-                            output.write(&ev, sizeof(ev));
+                            output.write(&e, sizeof(e));
                         }
                     }
 
