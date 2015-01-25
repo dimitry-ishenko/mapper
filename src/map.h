@@ -37,7 +37,12 @@ exclusive_device(JOY_0, /dev/input/by-id/usb-Thrustmaster_T.Flight_Hotas_X-event
 //  REL_...             ( see event_gen.hpp )
 //  ABS_...             ( see event_gen.hpp )
 
-output_device(JOY_1, ABS_X | ABS_Y | ABS_Z | ABS_RZ | ABS_THROTTLE | ABS_HAT0X | ABS_HAT0Y | JOYSTICK_BUTTONS );
+output_device(JOY_1,  ABS_X |  ABS_Y |  ABS_Z
+                   | ABS_RX | ABS_RY | ABS_RZ
+                   | ABS_THROTTLE
+                   | ABS_HAT0X
+                   | ABS_HAT0Y
+                   | BTN_JOYSTICK );
 output_device(KBD_1, KEYBOARD_KEYS);
 
 #endif
@@ -102,7 +107,7 @@ map(JOY_0, ABS_THROTTLE, JOY_1, ABS_THROTTLE, value_in);
 
 map(JOY_0,  BTN_TRIGGER, KBD_1,        KEY_K, value_in);
 map(JOY_0,    BTN_THUMB, KBD_1,        KEY_D, value_in, KEY_LEFTCTRL);
-map(JOY_0,   BTN_THUMB2, JOY_1,   BTN_THUMB2, value_in);
+map(JOY_0,   BTN_THUMB2, JOY_1, BTN_JOYSTICK, value_in);
 map(JOY_0,      BTN_TOP, KBD_1,      KEY_KP5, value_in);
 map(JOY_0,     BTN_TOP2, KBD_1,      KEY_KP0, value_in);
 map(JOY_0,   BTN_PINKIE, KBD_1,    KEY_KPDOT, value_in);
