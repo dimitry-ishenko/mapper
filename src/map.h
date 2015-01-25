@@ -8,6 +8,12 @@
 //
 // input_device(name, path);
 // exclusive_device(name, path);
+//
+// Where 'name' is an arbitrary unique name, which is used later to refer to
+// this device. And 'path' is the path to the device, usually somewhere in
+// /dev/input/...
+// The 'exclusive_device' grabs the device in exclusive mode (using EVIOCGRAB
+// ioctl).
 
 //exclusive_device(JOY_0, /dev/input/by-id/usb-Thrustmaster_T.Flight_Hotas_X-event-joystick);
 
@@ -16,14 +22,20 @@
 //
 // output_device(name, events);
 //
-//  KEYBOARD_KEYS
-//  MOUSE_BUTTONS
-//  JOYSTICK_BUTTONS
-//  GAMEPAD_BUTTONS
-//  KEY_...
-//  BTN_...
-//  REL_...
-//  ABS_...
+// Where 'name' is an arbitrary unique name, which is used later to refer to
+// this device. And 'events' is a list of one or more events supported by the
+// device. Use the | (pipe) symbol to combine the events, eg: ABS_X | ABS_Y.
+//
+// Following is the list of supported events:
+//
+//  KEYBOARD_KEYS       ( KEY_ESCAPE to KEY_UNKNOWN )
+//  MOUSE_BUTTONS       ( BTN_LEFT to BTN_TASK )
+//  JOYSTICK_BUTTONS    ( BTN_TRIGGER to BTN_DEAD )
+//  GAMEPAD_BUTTONS     ( BTN_SOUTH to BTN_THUMBR )
+//  KEY_...             ( see event_gen.hpp )
+//  BTN_...             ( see event_gen.hpp )
+//  REL_...             ( see event_gen.hpp )
+//  ABS_...             ( see event_gen.hpp )
 
 //output_device(JOY_1, ABS_X | ABS_Y | ABS_Z | ABS_RZ | ABS_THROTTLE | ABS_HAT0X | ABS_HAT0Y | JOYSTICK_BUTTONS );
 //output_device(KBD_1, KEYBOARD_KEYS);
@@ -42,11 +54,34 @@
 //     action;
 // );
 //
-// send_event(name, event, value);
-// send_event(name, event, value, { modifier [, modifier ...] });
+// When 'condition' is satisfied, 'action' is performed. Where 'condition' is
+// a boolean expression and 'action' is one or more statements.
 //
-// map(name_in, event_in, name_out, event_out, value_out);
-// map(name_in, event_in, name_out, event_out, value_out, { modifier_out [, modifier_out ...] });
+// send_event(name, event, value [, modifiers]);
+//
+// Send event to device. 'name' is the unique name of the device specified
+// above. 'event' is one of KEY_, BTN_, ABS_ or REL_ events (see event_gen.hpp)
+// The meaning of 'value' depends on the type of the event.
+// Optional 'modifiers' parameter is one or more additional events (usually
+// Ctrl, Shift and/or Alt keys) to be sent along.
+//
+// send_sync(name);
+//
+// Send sync event to device. Where 'name' is the unique name of the device
+// specified above.
+//
+// map(name_in, event_in, name_out, event_out, value_out [, modifiers]);
+//
+// When 'event_in' is received from 'name_in' device, send 'event_out' event
+// to 'device_out' device with 'value_out', adding optional 'modifiers'.
+// 'name_in' and 'name_out' are the unique names of the devices specified
+// above. 'event_in' and 'event_out' are one of KEY_, BTN_, ABS_ or REL_
+// events (see event_gen.hpp). The meaning of 'value_out' depends on the type
+// of the event. Optional 'modifiers' parameter is one or more additional
+// events (usually Ctrl, Shift and/or Alt keys) to be sent along.
+//
+// Following variables/functions/constants can be used in any of the above
+// macros:
 //
 //  name_in
 //  event_in
