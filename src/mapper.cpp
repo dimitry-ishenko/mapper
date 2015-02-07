@@ -220,11 +220,14 @@ try
                 app::event event_in = static_cast<app::event>((e.type << 16) + e.code);
                 int value_in = e.value;
 
-                //using std::setw; using std::left;
+                if(verbose)
+                {
+                    using std::setw; using std::left;
 
-                //auto ri = event_name.find(event_in);
-                //    if(ri != event_name.end())
-                //std::cout << "event = " << left << setw(16) << ri->second << " value = " << setw(0) << value_in << _n;
+                    auto ri = event_name.find(event_in);
+                        if(ri != event_name.end())
+                    std::cout << "event = " << left << setw(16) << ri->second << " value = " << setw(0) << value_in << _n;
+                }
 
                 #define DEFINE_MAPPING
                 #include "map.h"
