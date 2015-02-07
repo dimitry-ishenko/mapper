@@ -27,7 +27,7 @@ using namespace app;
 ////////////////////////////////////////////////////////////////////////////////
 #define VERSION_MAJOR 0
 #define VERSION_MINOR 5
-#define VERSION_MICRO 0
+#define VERSION_MICRO 1
 
 constexpr char _n = '\n';
 
