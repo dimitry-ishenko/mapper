@@ -42,6 +42,16 @@ bool running = true;
 bool verbose = false;
 
 ////////////////////////////////////////////////////////////////////////////////
+void show_event(const std::string& name, const app::event& event, int value)
+{
+    using std::setw; using std::left;
+
+    auto ri = event_name.find(event);
+        if(ri != event_name.end())
+    std::cout << left << setw(10) << name << " = " << setw(16) << ri->second << " value = " << setw(0) << value << _n;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 void input_device_(int number, const std::string& name, const std::string& path, bool exclusive = false)
 {
@@ -220,14 +230,7 @@ try
                 app::event event_in = static_cast<app::event>((e.type << 16) + e.code);
                 int value_in = e.value;
 
-                if(verbose)
-                {
-                    using std::setw; using std::left;
-
-                    auto ri = event_name.find(event_in);
-                        if(ri != event_name.end())
-                    std::cout << "event = " << left << setw(16) << ri->second << " value = " << setw(0) << value_in << _n;
-                }
+                if(verbose) show_event("event_in", event_in, value_in);
 
                 #define DEFINE_MAPPING
                 #include "map.h"
