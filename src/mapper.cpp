@@ -80,6 +80,8 @@ inline void output_device_(int number, const std::string& name, app::event event
 ////////////////////////////////////////////////////////////////////////////////
 void send_event_(int number, app::event event, int value)
 {
+    if(verbose) show_event("event_out", event, value);
+
     input_event x
     {
         { 0, 0 },
