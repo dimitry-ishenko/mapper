@@ -26,8 +26,8 @@ using namespace app;
 
 ////////////////////////////////////////////////////////////////////////////////
 #define VERSION_MAJOR 0
-#define VERSION_MINOR 4
-#define VERSION_MICRO 1
+#define VERSION_MINOR 5
+#define VERSION_MICRO 0
 
 constexpr char _n = '\n';
 
@@ -39,6 +39,7 @@ input_devices inputs;
 output_devices outputs;
 
 bool running = true;
+bool verbose = false;
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -136,110 +137,125 @@ const app::events GAMEPAD_BUTTONS  = range(BTN_GAMEPAD, BTN_THUMBR);
 #define map(ni, ei, no, eo, vo, mo...) when(name_in == ni && ei == event_in, send_event(no, eo, vo, ##mo))
 
 ////////////////////////////////////////////////////////////////////////////////
-int main(int , char* [])
+int main(int argc, char* argv[])
+try
 {
-    try
+    for(int ri = 1; ri < argc; ++ri)
     {
-        // define input and output devices
-        #define DEFINE_DEVICE
-        #include "map.h"
-        #undef DEFINE_DEVICE
-        std::cout << _n;
+        std::string arg = argv[ri];
 
-        std::vector<pollfd> desc;
-        desc.reserve(inputs.size());
-
-        // open input devices
-        for(app::input& input: inputs)
+        if(arg == "--verbose")
+            verbose = true;
+        else if(arg == "--version" || arg == "-v")
         {
-            std::cout << "Opening " << input.name() << _n;
-            input.open();
-
-            desc.emplace_back(pollfd { .fd = input.get_id(), .events = POLL_IN });
+            std::cout << argv[0] << ' ' << VERSION_MAJOR << '.' << VERSION_MINOR << '.' << VERSION_MICRO << _n;
+            return 0;
         }
-        std::cout << _n;
+        else throw std::invalid_argument("Invalid argument: " + arg);
+    }
 
-        // open and initialize output devices
-        for(auto& ri: outputs)
+    // define input and output devices
+    #define DEFINE_DEVICE
+    #include "map.h"
+    #undef DEFINE_DEVICE
+    std::cout << _n;
+
+    std::vector<pollfd> desc;
+    desc.reserve(inputs.size());
+
+    // open input devices
+    for(app::input& input: inputs)
+    {
+        std::cout << "Opening " << input.name() << _n;
+        input.open();
+
+        desc.emplace_back(pollfd { .fd = input.get_id(), .events = POLL_IN });
+    }
+    std::cout << _n;
+
+    // open and initialize output devices
+    for(auto& ri: outputs)
+    {
+        app::output& output = ri.second;
+
+        std::cout << "Opening " << output.name() << _n;
+        output.open();
+    }
+    std::cout << _n;
+
+    // install signal handler
+    struct sigaction sa;
+    memset(&sa, 0, sizeof(sa));
+
+    sa.sa_handler = [](int) { running = false; };
+    sa.sa_flags = SA_RESTART;
+
+    sigaction(SIGINT, &sa, NULL);
+    sigaction(SIGTERM, &sa, NULL);
+
+    // main loop
+    for(int ri = 0; running; )
+    {
+        int n = poll(&desc[0], desc.size(), -1);
+        if(n < 0)
         {
-            app::output& output = ri.second;
-
-            std::cout << "Opening " << output.name() << _n;
-            output.open();
+            if(errno == EINTR)
+                break;
+            else throw errno_error();
         }
-        std::cout << _n;
 
-        // install signal handler
-        struct sigaction sa;
-        memset(&sa, 0, sizeof(sa));
-
-        sa.sa_handler = [](int) { running = false; };
-        sa.sa_flags = SA_RESTART;
-
-        sigaction(SIGINT, &sa, NULL);
-        sigaction(SIGTERM, &sa, NULL);
-
-        // main loop
-        for(int ri = 0; running; )
+        for(; n > 0; ri = ++ri % desc.size())
         {
-            int n = poll(&desc[0], desc.size(), -1);
-            if(n < 0)
+            if(desc[ri].revents & POLL_IN)
             {
-                if(errno == EINTR)
-                    break;
-                else throw errno_error();
-            }
+                app::input& input = inputs[ri]; // used in macros
 
-            for(; n > 0; ri = ++ri % desc.size())
-            {
-                if(desc[ri].revents & POLL_IN)
+                input_event e;
+                auto read = input.read(&e, sizeof(e));
+                    if(read != sizeof(e))
+                throw std::runtime_error("Short read from device " + input.name());
+
+                // for use in macros
+                int name_in = input.number();
+                app::event event_in = static_cast<app::event>((e.type << 16) + e.code);
+                int value_in = e.value;
+
+                if(verbose)
                 {
-                    app::input& input = inputs[ri]; // used in macros
+                    using std::setw; using std::left;
 
-                    input_event e;
-                    auto read = input.read(&e, sizeof(e));
-                        if(read != sizeof(e))
-                    throw std::runtime_error("Short read from device " + input.name());
-
-                    // for use in macros
-                    int name_in = input.number();
-                    app::event event_in = static_cast<app::event>((e.type << 16) + e.code);
-                    int value_in = e.value;
-
-                    //using std::setw; using std::left;
-
-                    //auto ri = event_name.find(event_in);
-                    //    if(ri != event_name.end())
-                    //std::cout << "event = " << left << setw(16) << ri->second << " value = " << setw(0) << value_in << _n;
-
-                    #define DEFINE_MAPPING
-                    #include "map.h"
-                    #undef DEFINE_MAPPING
-
-                    // send sync events to all output devices
-                    if(e.type == EV_SYN)
-                    {
-                        e.time.tv_sec = 0;
-                        e.time.tv_usec = 0;
-                        for(auto& ri: outputs)
-                        {
-                            app::output& output = ri.second;
-                            output.write(&e, sizeof(e));
-                        }
-                    }
-
-                    --n;
+                    auto ri = event_name.find(event_in);
+                        if(ri != event_name.end())
+                    std::cout << "event = " << left << setw(16) << ri->second << " value = " << setw(0) << value_in << _n;
                 }
-            }
-            if(n > 0) throw std::runtime_error("Didn't process all incoming data");
-        }
 
-        std::cout << "Exiting" << _n;
-        return 0;
+                #define DEFINE_MAPPING
+                #include "map.h"
+                #undef DEFINE_MAPPING
+
+                // send sync events to all output devices
+                if(e.type == EV_SYN)
+                {
+                    e.time.tv_sec = 0;
+                    e.time.tv_usec = 0;
+                    for(auto& ri: outputs)
+                    {
+                        app::output& output = ri.second;
+                        output.write(&e, sizeof(e));
+                    }
+                }
+
+                --n;
+            }
+        }
+        if(n > 0) throw std::runtime_error("Didn't process all incoming data");
     }
-    catch(std::exception& e)
-    {
-        std::cerr << e.what() << _n;
-        return 1;
-    }
+
+    std::cout << "Exiting" << _n;
+    return 0;
+}
+catch(std::exception& e)
+{
+    std::cerr << e.what() << _n;
+    return 1;
 }
