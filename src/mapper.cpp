@@ -116,9 +116,31 @@ void send_event_(int number, app::event event, int value, const app::events& mod
     }
 }
 
+inline void send_event_(int number, app::event event, bool value, int& counter, const app::events& modifiers)
+{
+    if(value)
+    {
+        if(counter++)
+            send_event_(number, event, value);
+        else send_event_(number, event, value, modifiers);
+    }
+    else
+    {
+        if(--counter)
+            send_event_(number, event, value);
+        else send_event_(number, event, value, modifiers);
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
 inline void send_event_(int number, app::event event, int value, app::event modifier)
 {
     send_event_(number, event, value, app::events({ modifier }));
+}
+
+inline void send_event_(int number, app::event event, bool value, int& counter, app::event modifier)
+{
+    send_event_(number, event, value, counter, app::events({ modifier }));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
