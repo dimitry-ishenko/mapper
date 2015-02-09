@@ -131,22 +131,22 @@ const app::events GAMEPAD_BUTTONS  = range(BTN_GAMEPAD, BTN_THUMBR);
 ////////////////////////////////////////////////////////////////////////////////
 #define input_device(n, p)          \
     constexpr int n = __LINE__;     \
-    input_device_(n, #n, #p);       \
+    input_device_(n, #n, #p)        \
 
 #define exclusive_device(n, p)      \
     constexpr int n = __LINE__;     \
-    input_device_(n, #n, #p, true); \
+    input_device_(n, #n, #p, true)  \
 
 #define output_device(n, e)         \
     constexpr int n = __LINE__;     \
-    output_device_(n, #n, e);       \
+    output_device_(n, #n, e)        \
 
-#define send_event(n, e, v, m...) send_event_(n, e, v, ##m);
-#define send_sync(n) send_sync_(n);
+#define send_event(n, e, v, m...) send_event_(n, e, v, ##m)
+#define send_sync(n) send_sync_(n)
 
 #define when(c, a) if(c) { a }
 
-#define map(ni, ei, no, eo, vo, mo...) when(name_in == ni && ei == event_in, send_event(no, eo, vo, ##mo))
+#define map(ni, ei, no, eo, vo, mo...) when(name_in == ni && ei == event_in, send_event(no, eo, vo, ##mo);)
 
 ////////////////////////////////////////////////////////////////////////////////
 int main(int argc, char* argv[])
