@@ -120,31 +120,40 @@ map(JOY_0,    BTN_BASE4, KBD_1,      KEY_KP3, value_in, KEY_LEFTALT);
 map(JOY_0,    BTN_BASE5, KBD_1,        KEY_A, value_in);
 map(JOY_0,    BTN_BASE6, KBD_1,        KEY_L, value_in);
 
+static auto prev_X = EVT_NONE;
+static auto prev_Y = EVT_NONE;
+
 when(name_in == JOY_0 && event_in == ABS_HAT0X,
-    static auto prev = EVT_NONE;
     if(value_in)
     {
-        prev = (value_in < 0) ? KEY_KP4 : KEY_KP6;
-        send_event(KBD_1, prev, 1, KEY_LEFTALT);
+        prev_X = (value_in < 0) ? KEY_KP4 : KEY_KP6;
+        if(prev_Y == EVT_NONE)
+            send_event(KBD_1, prev_X, 1, KEY_LEFTALT);
+        else send_event(KBD_1, prev_X, 1);
     }
     else
     {
-        send_event(KBD_1, prev, 0, KEY_LEFTALT);
-        prev = EVT_NONE;
+        if(prev_Y == EVT_NONE)
+            send_event(KBD_1, prev_X, 0, KEY_LEFTALT);
+        else send_event(KBD_1, prev_X, 0);
+        prev_X = EVT_NONE;
     }
 );
 
 when(name_in == JOY_0 && event_in == ABS_HAT0Y,
-    static auto prev = EVT_NONE;
     if(value_in)
     {
-        prev = (value_in < 0) ? KEY_KP8 : KEY_KP2;
-        send_event(KBD_1, prev, 1, KEY_LEFTALT);
+        prev_Y = (value_in < 0) ? KEY_KP8 : KEY_KP2;
+        if(prev_X == EVT_NONE)
+            send_event(KBD_1, prev_Y, 1, KEY_LEFTALT);
+        else send_event(KBD_1, prev_Y, 1);
     }
     else
     {
-        send_event(KBD_1, prev, 0, KEY_LEFTALT);
-        prev = EVT_NONE;
+        if(prev_X == EVT_NONE)
+            send_event(KBD_1, prev_Y, 0, KEY_LEFTALT);
+        else send_event(KBD_1, prev_Y, 0);
+        prev_Y = EVT_NONE;
     }
 );
 
